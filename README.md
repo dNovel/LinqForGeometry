@@ -1,0 +1,1 @@
+This is the source code base for my Bachlor Thesis Project at Hochschule Furtwangen University.
