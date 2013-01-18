@@ -3,6 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqForGeometry", "LinqForGeometry.csproj", "{27AD7CC3-0DE5-410A-A42A-DD9398DA32CD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{1ECF6160-984C-43AC-91FF-A357E94670FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kernel", "Kernel", "{905724B0-496B-4C44-B9C9-1265A47AAC12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructDistribution", "..\StructDistribution\StructDistribution.csproj", "{57562C3C-38D4-47D1-BFF8-02F2C9FBE165}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLinq", "SimpleLinq\SimpleLinq.csproj", "{EDD4BC6C-C5BC-4568-88AC-052E8F2CCF37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleIEnumerable", "SimpleIEnumerable\SimpleIEnumerable.csproj", "{21174B60-5B85-4190-9F2A-E63DB2E96959}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,8 +23,26 @@ Global
 		{27AD7CC3-0DE5-410A-A42A-DD9398DA32CD}.Debug|x86.Build.0 = Debug|x86
 		{27AD7CC3-0DE5-410A-A42A-DD9398DA32CD}.Release|x86.ActiveCfg = Release|x86
 		{27AD7CC3-0DE5-410A-A42A-DD9398DA32CD}.Release|x86.Build.0 = Release|x86
+		{57562C3C-38D4-47D1-BFF8-02F2C9FBE165}.Debug|x86.ActiveCfg = Debug|x86
+		{57562C3C-38D4-47D1-BFF8-02F2C9FBE165}.Debug|x86.Build.0 = Debug|x86
+		{57562C3C-38D4-47D1-BFF8-02F2C9FBE165}.Release|x86.ActiveCfg = Release|x86
+		{57562C3C-38D4-47D1-BFF8-02F2C9FBE165}.Release|x86.Build.0 = Release|x86
+		{EDD4BC6C-C5BC-4568-88AC-052E8F2CCF37}.Debug|x86.ActiveCfg = Debug|x86
+		{EDD4BC6C-C5BC-4568-88AC-052E8F2CCF37}.Debug|x86.Build.0 = Debug|x86
+		{EDD4BC6C-C5BC-4568-88AC-052E8F2CCF37}.Release|x86.ActiveCfg = Release|x86
+		{EDD4BC6C-C5BC-4568-88AC-052E8F2CCF37}.Release|x86.Build.0 = Release|x86
+		{21174B60-5B85-4190-9F2A-E63DB2E96959}.Debug|x86.ActiveCfg = Debug|x86
+		{21174B60-5B85-4190-9F2A-E63DB2E96959}.Debug|x86.Build.0 = Debug|x86
+		{21174B60-5B85-4190-9F2A-E63DB2E96959}.Release|x86.ActiveCfg = Release|x86
+		{21174B60-5B85-4190-9F2A-E63DB2E96959}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{57562C3C-38D4-47D1-BFF8-02F2C9FBE165} = {1ECF6160-984C-43AC-91FF-A357E94670FA}
+		{EDD4BC6C-C5BC-4568-88AC-052E8F2CCF37} = {1ECF6160-984C-43AC-91FF-A357E94670FA}
+		{21174B60-5B85-4190-9F2A-E63DB2E96959} = {1ECF6160-984C-43AC-91FF-A357E94670FA}
+		{27AD7CC3-0DE5-410A-A42A-DD9398DA32CD} = {905724B0-496B-4C44-B9C9-1265A47AAC12}
 	EndGlobalSection
 EndGlobal

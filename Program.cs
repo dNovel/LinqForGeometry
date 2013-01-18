@@ -88,6 +88,7 @@ namespace LinqForGeometry
             return e._inx;
         }
 
+        //WTF is this?
         /// <summary>
         /// Is only callable from the same assembly file
         /// </summary>
@@ -96,6 +97,10 @@ namespace LinqForGeometry
         {
             _inx = i;
         }
+
+        /// <summary>
+        /// Tests for the EdgeHandle to be valid. The index has to be > 0
+        /// </summary>
         public bool IsValid { get { return _inx >= 0; } }
     }
 
@@ -220,7 +225,7 @@ namespace LinqForGeometry
                         /* This struct only contains this HalfEdgeHandle */
                         _h = new HalfEdgeHandle()
                         {
-                            _inx = -1 /*WTF Why not use the provided constructor here? And why set it invalid?*/
+                            _inx = -1 /*Why not use the provided constructor here? And why set it invalid?*/
                         } 
                     }
                 );
@@ -257,7 +262,7 @@ namespace LinqForGeometry
                 VertexHandle vStart = enVerts.Current; // retrieve the current element
                 VertexHandle vPrev = vStart; // Set the prev. element to the current so we have a ring
 
-                //WTF This is supposed to get always the handle for the 'nextnext' vertex from the vertexhandle list
+                //This is supposed to get always the handle for the 'nextnext' vertex from the vertexhandle list
                 for (enVerts.MoveNext(); enVerts.MoveNext();)
                 {
                     EdgeHandle eh = GetOrAddEdge(vPrev, enVerts.Current);
@@ -265,7 +270,7 @@ namespace LinqForGeometry
                         vPrev = enVerts.Current;
                 }
 
-                //WTF i dont get it for now
+                //FIXME i dont get it for now
                 for (int i = 0; i < vertices.Length; i++)
                 {
                     int iNxt = (i + 1) % vertices.Length;
