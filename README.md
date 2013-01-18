@@ -3,7 +3,7 @@
 
 This is the source code base for my Bachlor Thesis Project at Hochschule Furtwangen University.
 
-**Please note this:**
+**Please note this:**  
 	- There is no compileable state right now  
 	- You might read the code but you must not copy or redistribute it until i set the licence for this  
 	- You can ask me questions via github  
