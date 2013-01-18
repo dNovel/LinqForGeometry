@@ -167,6 +167,9 @@ pip-log.txt
 #	My Files
 ##################
 
+# Ignore these files-types
+	*.txt
+
 # Ignore these files
 	commit_msg.txt
 	
