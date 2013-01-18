@@ -1,4 +1,4 @@
-#################
+﻿#################
 ## Eclipse
 #################
 
@@ -168,10 +168,10 @@ pip-log.txt
 ##################
 
 # Ignore these files-types
-	*.txt
+*.txt
 
 # Ignore these files
-	commit_msg_helper.txt
+commit_msg_helper.txt
 	
 # Ignore these folders
-	documentation/
+documentation/
