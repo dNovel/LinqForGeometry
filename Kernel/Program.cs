@@ -67,7 +67,7 @@ namespace LinqForGeometry
     // Some general conventions:
     // o Invalid handles are -1. A handle value of 0 is valid (because it's a valid array index).
     // o Iterating over half edges around a face yields clockwise order.
-    // @FIXME: This should be counter clockwise
+    //FIXME: This should be counter clockwise
 
 
     /// <summary>
