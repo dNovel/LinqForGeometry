@@ -71,7 +71,7 @@ namespace LinqForGeometry
 
 
     /// <summary>
-    /// This is the handle struct for a 'full-edge'. 
+    /// This is the handle struct for a 'full-edge'.
     /// If invalid the handle is -1. If the value is 0 its valid (because it's a valid array index).
     /// </summary>
     public struct EdgeHandle

@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{27AD7CC3-0DE5-410A-A42A-DD9398DA32CD}</ProjectGuid>
+    <ProjectGuid>{578E311C-8FCE-4E53-89A9-82C84AAD68FF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LinqForGeometry</RootNamespace>
+    <RootNamespace>hsfurtwangen.dsteffen.lfg</RootNamespace>
     <AssemblyName>LinqForGeometry</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -47,14 +47,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\DOC_LinqForGeometry.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>LinqForGeometry.Program</StartupObject>
+    <StartupObject>hsfurtwangen.dsteffen.lfg.Loader</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Fusee.Math.Core">
-      <HintPath>E:\Development\Privat\Fusee\Bin\Debug\Fusee.Math.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -64,11 +62,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="src\Loader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\" />
+    <Compile Include="src\Structs\Handles\HVertex.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -92,6 +88,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
