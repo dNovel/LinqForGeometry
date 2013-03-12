@@ -35,7 +35,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Fusee.Math.Core">
-      <HintPath>..\..\Privat\Fusee\Bin\Debug\Fusee.Math.Core.dll</HintPath>
+      <HintPath>E:\Development\Privat\Fusee\Bin\Debug\Fusee.Math.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -45,11 +45,14 @@
     <Compile Include="src\Structs\Handles\HFace.cs" />
     <Compile Include="src\Structs\Handles\HHalfEdge.cs" />
     <Compile Include="src\Structs\Handles\HEdge.cs" />
+    <Compile Include="src\Geometry.cs" />
+    <Compile Include="src\Structs\Internals\VertexConnector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="src\" />
     <Folder Include="src\Structs\" />
     <Folder Include="src\Structs\Handles\" />
+    <Folder Include="src\Structs\Internals\" />
   </ItemGroup>
 </Project>

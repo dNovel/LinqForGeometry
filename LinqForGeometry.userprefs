@@ -1,12 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="LinqForGeometry\src\Loader.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="LinqForGeometry\src\Structs\Internals\VertexConnector.cs">
     <Files>
-      <File FileName="LinqForGeometry\src\Loader.cs" Line="7" Column="13" />
-      <File FileName="LinqForGeometry\src\Structs\Handles\HVertex.cs" Line="3" Column="69" />
+      <File FileName="LinqForGeometry\src\Structs\Handles\HEdge.cs" Line="8" Column="21" />
       <File FileName="LinqForGeometry\src\Structs\Handles\HFace.cs" Line="3" Column="69" />
-      <File FileName="LinqForGeometry\src\Structs\Handles\HHalfEdge.cs" Line="3" Column="69" />
-      <File FileName="LinqForGeometry\src\Structs\Handles\HEdge.cs" Line="16" Column="2" />
+      <File FileName="LinqForGeometry\src\Structs\Handles\HHalfEdge.cs" Line="15" Column="51" />
+      <File FileName="LinqForGeometry\src\Structs\Handles\HVertex.cs" Line="15" Column="44" />
+      <File FileName="LinqForGeometry\src\Geometry.cs" Line="14" Column="33" />
+      <File FileName="LinqForGeometry\src\Loader.cs" Line="19" Column="38" />
+      <File FileName="LinqForGeometry\src\Structs\Internals\VertexConnector.cs" Line="20" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

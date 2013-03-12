@@ -21,6 +21,7 @@ namespace hsfurtwangen.dsteffen.lfg {
 	class Loader {
 		static void Main(string[] args) {
 			//TODO: Insert code here.
+			Geometry g1 = new Geometry();
 			Console.WriteLine("Hello Linq World!");
 		}
 	}
