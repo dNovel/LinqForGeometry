@@ -174,4 +174,5 @@ pip-log.txt
 commit_msg_helper.txt
 	
 # Ignore these folders
-documentation/
+documentation/sandcastle/Help/
+documentation/uml/
