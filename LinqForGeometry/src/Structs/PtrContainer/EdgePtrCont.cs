@@ -11,12 +11,15 @@
 
 using hsfurtwangen.dsteffen.lfg.structs.handles;
 
-namespace hsfurtwangen.dsteffen.lfg.structs.internals {
+namespace hsfurtwangen.dsteffen.lfg.structs.ptrcontainer {
 	/// <summary>
+	/// This is a edge 'Pointer Container'.
+	/// The Reference to the next 'object' are stored in here depending on the 'half-edge data strucute'
 	/// Every Vertex has a reference to one of his outgoing 'Half-Edges'
 	/// </summary>
-	internal struct InternalVertex
+	internal struct EdgePtrCont
 	{
-		internal HHalfEdge _h;
+		internal HHalfEdge _he1;
+		internal HHalfEdge _he2;
 	}
 }

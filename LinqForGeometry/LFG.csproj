@@ -46,13 +46,16 @@
     <Compile Include="src\Structs\Handles\HHalfEdge.cs" />
     <Compile Include="src\Structs\Handles\HEdge.cs" />
     <Compile Include="src\Geometry.cs" />
-    <Compile Include="src\Structs\Internals\VertexConnector.cs" />
+    <Compile Include="src\Structs\PtrContainer\VertexPtrCont.cs" />
+    <Compile Include="src\Structs\PtrContainer\FacePtrCont.cs" />
+    <Compile Include="src\Structs\PtrContainer\HEdgePtrCont.cs" />
+    <Compile Include="src\Structs\PtrContainer\EdgePtrCont.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="src\" />
     <Folder Include="src\Structs\" />
     <Folder Include="src\Structs\Handles\" />
-    <Folder Include="src\Structs\Internals\" />
+    <Folder Include="src\Structs\PtrContainer\" />
   </ItemGroup>
 </Project>

@@ -1,14 +1,13 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="LinqForGeometry\src\Structs\Internals\VertexConnector.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="LinqForGeometry\src\Geometry.cs">
     <Files>
-      <File FileName="LinqForGeometry\src\Structs\Handles\HEdge.cs" Line="8" Column="21" />
-      <File FileName="LinqForGeometry\src\Structs\Handles\HFace.cs" Line="3" Column="69" />
-      <File FileName="LinqForGeometry\src\Structs\Handles\HHalfEdge.cs" Line="15" Column="51" />
-      <File FileName="LinqForGeometry\src\Structs\Handles\HVertex.cs" Line="15" Column="44" />
-      <File FileName="LinqForGeometry\src\Geometry.cs" Line="14" Column="33" />
-      <File FileName="LinqForGeometry\src\Loader.cs" Line="19" Column="38" />
-      <File FileName="LinqForGeometry\src\Structs\Internals\VertexConnector.cs" Line="20" Column="25" />
+      <File FileName="LinqForGeometry\src\Loader.cs" Line="25" Column="41" />
+      <File FileName="LinqForGeometry\src\Geometry.cs" Line="50" Column="6" />
+      <File FileName="LinqForGeometry\src\Structs\PtrContainer\VertexPtrCont.cs" Line="8" Column="24" />
+      <File FileName="LinqForGeometry\src\Structs\PtrContainer\FacePtrCont.cs" Line="22" Column="25" />
+      <File FileName="LinqForGeometry\src\Structs\PtrContainer\HEdgePtrCont.cs" Line="6" Column="29" />
+      <File FileName="LinqForGeometry\src\Structs\PtrContainer\EdgePtrCont.cs" Line="23" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
