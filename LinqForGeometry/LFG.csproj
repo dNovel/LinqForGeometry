@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -40,11 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="src\KernelController.cs" />
     <Compile Include="src\Loader.cs" />
-    <Compile Include="src\Structs\Handles\HVertex.cs" />
-    <Compile Include="src\Structs\Handles\HFace.cs" />
-    <Compile Include="src\Structs\Handles\HHalfEdge.cs" />
-    <Compile Include="src\Structs\Handles\HEdge.cs" />
+    <Compile Include="src\Structs\Handles\HandleVertex.cs" />
+    <Compile Include="src\Structs\Handles\HandleFace.cs" />
+    <Compile Include="src\Structs\Handles\HandleHalfEdge.cs" />
+    <Compile Include="src\Structs\Handles\HandleEdge.cs" />
     <Compile Include="src\Geometry.cs" />
     <Compile Include="src\Structs\PtrContainer\VertexPtrCont.cs" />
     <Compile Include="src\Structs\PtrContainer\FacePtrCont.cs" />
@@ -52,10 +53,5 @@
     <Compile Include="src\Structs\PtrContainer\EdgePtrCont.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="src\" />
-    <Folder Include="src\Structs\" />
-    <Folder Include="src\Structs\Handles\" />
-    <Folder Include="src\Structs\PtrContainer\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

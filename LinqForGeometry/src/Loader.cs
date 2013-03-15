@@ -19,21 +19,23 @@ using Fusee.Math;
 namespace hsfurtwangen.dsteffen.lfg {
 	
 	class Loader {
+
+        static KernelController<float3, float3, float3> _lfgSys;
+
 		static void Main(string[] args) {
-            Geometry<float3> g1 = new Geometry<float3>();
+            _lfgSys = new KernelController<float3, float3, float3>();
 			
             // TODO: this has to come from the importer not hardcoded ;)
-            HVertex h0 = g1.AddVertex(new float3(1f, 2f, 3f));
-            HVertex h1 = g1.AddVertex(new float3(2f, 3f, 4f));
-            HVertex h2 = g1.AddVertex(new float3(3f, 4f, 5f));
-            HVertex h3 = g1.AddVertex(new float3(4f, 5f, 6f));
+            _lfgSys.AddVertex(new float3(0f, 0f, 0f));
+            _lfgSys.AddVertex(new float3(1f, 1f, 1f));
+            _lfgSys.AddVertex(new float3(2f, 2f, 2f));
 
             // IMPORTANT remember this for later. Don't jump over edges!
-            g1.AddEdge(h0, h1);
-            g1.AddEdge(h1, h2);
-            g1.AddEdge(h2, h3);
+            //g1.AddEdge(h0, h1);
+            //g1.AddEdge(h1, h2);
+            //g1.AddEdge(h2, h3);
             
-            g1.ConsoleDebugListOut();
+            // g1.ConsoleDebugListOut();
 		}
 
 	}
