@@ -21,6 +21,9 @@ namespace hsfurtwangen.dsteffen.lfg.structs.ptrcontainer
     internal struct HEdgePtrCont
     {
         internal HandleHalfEdge _he;
+        internal HandleHalfEdge _nhe;
+        // This is optional ...
+        // internal HandleHalfEdge _phe;
         internal HandleVertex _v;
         internal HandleFace _f;
     }

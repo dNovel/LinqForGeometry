@@ -40,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="src\Importer\GeoFace.cs" />
+    <Compile Include="src\Importer\WavefrontImporter.cs" />
     <Compile Include="src\KernelController.cs" />
     <Compile Include="src\Loader.cs" />
     <Compile Include="src\Structs\Handles\HandleVertex.cs" />

@@ -6,11 +6,15 @@ using System.Text;
 using Fusee.Math;
 using hsfurtwangen.dsteffen.lfg;
 using hsfurtwangen.dsteffen.lfg.structs.handles;
+using hsfurtwangen.dsteffen.lfg.Importer;
 
 namespace hsfurtwangen.dsteffen.lfg
 {
     class KernelController<VertexType, EdgeType, FaceType>
     {
+        WavefrontImporter<float3> _objImporter;
+        List<GeoFace> _GeoFaces;
+
         Geometry<VertexType, EdgeType, FaceType> geo;
 
         List<HandleVertex> _LverticeHndl;
@@ -19,10 +23,22 @@ namespace hsfurtwangen.dsteffen.lfg
 
         public KernelController()
         {
+            _objImporter = new WavefrontImporter<float3>();
+            _GeoFaces = new List<GeoFace>();
+
             geo = new Geometry<VertexType, EdgeType, FaceType>();
             _LverticeHndl = new List<HandleVertex>();
             _LedgeHndl = new List<HandleEdge>();
             _LfaceHndl = new List<FaceType>();
+        }
+        
+        /// <summary>
+        /// Loads an asset specified by the path
+        /// </summary>
+        /// <param name="path">Path to the wavefront file</param>
+        public void LoadAsset(String path)
+        {
+            List<GeoFace> faceList = _objImporter.LoadAsset(path);
         }
 
         /// <summary>

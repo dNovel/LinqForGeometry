@@ -81,13 +81,20 @@ namespace hsfurtwangen.dsteffen.lfg
 
 
             // TODO: Add the faces connection here, to? -> Call some lambda linq collection on the geo stack.
-
+            hedge1._f = new HandleFace();
+            hedge1._f._DataIndex = -1;
+            hedge2._f = new HandleFace();
+            hedge2._f._DataIndex = -1;
 
             hedge1._he = new HandleHalfEdge();
             hedge1._he._DataIndex = (_LhedgePtrCont.Count + 2) - 1;
-
             hedge2._he = new HandleHalfEdge();
             hedge2._he._DataIndex = (_LhedgePtrCont.Count + 2) - 2;
+
+            hedge1._nhe = new HandleHalfEdge();
+            hedge1._nhe._DataIndex = -1;
+            hedge2._nhe = new HandleHalfEdge();
+            hedge2._nhe._DataIndex = -1;
 
             _LhedgePtrCont.Add(hedge1);
             _LhedgePtrCont.Add(hedge2);
