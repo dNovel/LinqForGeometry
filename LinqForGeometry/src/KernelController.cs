@@ -10,28 +10,28 @@ using hsfurtwangen.dsteffen.lfg.Importer;
 
 namespace hsfurtwangen.dsteffen.lfg
 {
-    class KernelController<VertexType, EdgeType, FaceType>
+    class KernelController
     {
         WavefrontImporter<float3> _objImporter;
         List<GeoFace> _GeoFaces;
 
-        Geometry<VertexType, EdgeType, FaceType> geo;
+        Geometry<float3, GeoFace, float3> _GeometryContainer;
 
         List<HandleVertex> _LverticeHndl;
         List<HandleEdge> _LedgeHndl;
-        List<FaceType> _LfaceHndl;
+        List<HandleFace> _LfaceHndl;
 
         public KernelController()
         {
             _objImporter = new WavefrontImporter<float3>();
             _GeoFaces = new List<GeoFace>();
 
-            geo = new Geometry<VertexType, EdgeType, FaceType>();
+            _GeometryContainer = new Geometry<float3, GeoFace, float3>();
             _LverticeHndl = new List<HandleVertex>();
             _LedgeHndl = new List<HandleEdge>();
-            _LfaceHndl = new List<FaceType>();
+            _LfaceHndl = new List<HandleFace>();
         }
-        
+
         /// <summary>
         /// Loads an asset specified by the path
         /// </summary>
@@ -39,18 +39,26 @@ namespace hsfurtwangen.dsteffen.lfg
         public void LoadAsset(String path)
         {
             List<GeoFace> faceList = _objImporter.LoadAsset(path);
+
+            // Work on the facelist and transform the data structure to the 'half-edge' data structure.
+            foreach (GeoFace gf in faceList)
+            {
+                AddFace(gf);
+            }
+
         }
 
         /// <summary>
         /// Adds a vertex to the geometry container. Can then be controlled by the kernel
         /// </summary>
         /// <param name="val"></param>
-        public void AddVertex(VertexType val)
+        public void AddVertex(float3 val)
         {
             _LverticeHndl.Add(
-                    geo.AddVertex(val)
+                    _GeometryContainer.AddVertex(val)
                 );
 
+            /*
             //TODO: Create Half Edge and Edges afterwars here!
             if (_LverticeHndl.Count > 1)
             {
@@ -58,22 +66,36 @@ namespace hsfurtwangen.dsteffen.lfg
                 int hvToID = _LverticeHndl.Count - 1;
                 AddEdge(_LverticeHndl[hvFromID], _LverticeHndl[hvToID]);
             }
+             * */
         }
 
+
         /// <summary>
-        /// Adds an edge to the geometry container. Can then be controlled by the kernel
+        /// Adds a face from the importer to the geometry container
         /// </summary>
-        /// <param name="hv1">From Vertex</param>
-        /// <param name="hv2">To Vertex</param>
-        public void AddEdge(HandleVertex hvFrom, HandleVertex hvTo)
+        /// <param name="gf">GeoFace object from the importer</param>
+        private void AddFace(GeoFace gf)
         {
-            // TODO: First ask if there is already a connection to prevent redundant data
-            if (!geo.GetConnection(hvFrom, hvTo))
+            _LfaceHndl.Add(
+                _GeometryContainer.AddFace(gf)
+                );
+
+            foreach (float3 vVal in gf._LFVertices)
+            {
+                AddVertex(vVal);
+            }
+
+            // Now create the hedges for the face, first the inner ones then the outer ones.
+            // Here have to be two vertices. does not work otherwise :/
+            // Best go through with for loop and count so i can set the second with an id.
+            foreach(HandleVertex hv in _LverticeHndl)
             {
                 _LedgeHndl.Add(
-                        geo.AddEdge(hvFrom, hvTo)
-                    );
+                    _GeometryContainer.AddEdge(hv)
+                );
+
             }
+            // Now don't forget the hedge the face points to, best the first one inserted from the edge handle list or something like that.
         }
 
     }

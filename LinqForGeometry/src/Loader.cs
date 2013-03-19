@@ -22,11 +22,11 @@ namespace hsfurtwangen.dsteffen.lfg
     class Loader
     {
 
-        static KernelController<float3, float3, float3> _lfgSys;
+        static KernelController _lfgSys;
 
         static void Main(string[] args)
         {
-            _lfgSys = new KernelController<float3, float3, float3>();
+            _lfgSys = new KernelController();
             _lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/cube_square_1.obj");
 
             // do something interesting ...

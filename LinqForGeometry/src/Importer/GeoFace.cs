@@ -16,7 +16,7 @@ using Fusee.Math;
 
 namespace hsfurtwangen.dsteffen.lfg.Importer
 {
-    struct GeoFace
+    public struct GeoFace
     {
         internal List<float3> _LFVertices;
     }

@@ -15,7 +15,7 @@ namespace hsfurtwangen.dsteffen.lfg.structs.ptrcontainer
 {
     /// <summary>
     /// This is a vertex 'Pointer Container'.
-    /// The Reference to the next 'object' are stored in here depending on the 'half-edge data strucute'
+    /// The Reference to the next 'object' are stored in here depending on the 'half-edge data structure'
     /// Every Vertex has a reference to one of his outgoing 'Half-Edges'
     /// </summary>
     internal struct VertexPtrCont
