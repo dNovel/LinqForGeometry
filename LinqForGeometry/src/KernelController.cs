@@ -52,21 +52,11 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Adds a vertex to the geometry container. Can then be controlled by the kernel
         /// </summary>
         /// <param name="val"></param>
-        public void AddVertex(float3 val)
+        public HandleVertex AddVertex(float3 val)
         {
-            _LverticeHndl.Add(
-                    _GeometryContainer.AddVertex(val)
-                );
-
-            /*
-            //TODO: Create Half Edge and Edges afterwars here!
-            if (_LverticeHndl.Count > 1)
-            {
-                int hvFromID = _LverticeHndl.Count - 2;
-                int hvToID = _LverticeHndl.Count - 1;
-                AddEdge(_LverticeHndl[hvFromID], _LverticeHndl[hvToID]);
-            }
-             * */
+            HandleVertex hvToAdd = _GeometryContainer.AddVertex(val);
+            _LverticeHndl.Add(hvToAdd);
+            return hvToAdd;
         }
 
 
@@ -76,25 +66,44 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="gf">GeoFace object from the importer</param>
         private void AddFace(GeoFace gf)
         {
+            List<HandleVertex> hFaceVerts = new List<HandleVertex>();
+
             _LfaceHndl.Add(
                 _GeometryContainer.AddFace(gf)
                 );
 
             foreach (float3 vVal in gf._LFVertices)
             {
-                AddVertex(vVal);
+                hFaceVerts.Add(
+                        AddVertex(vVal)
+                    );
             }
 
             // Now create the hedges for the face, first the inner ones then the outer ones.
             // Here have to be two vertices. does not work otherwise :/
             // Best go through with for loop and count so i can set the second with an id.
-            foreach(HandleVertex hv in _LverticeHndl)
+            int cVertsInFace = hFaceVerts.Count;
+            int lastVert = cVertsInFace - 1;
+            for (int i = 0; i < cVertsInFace; i++)
             {
-                _LedgeHndl.Add(
-                    _GeometryContainer.AddEdge(hv)
-                );
-
+                // TODO: This will not work as im always counting all vertice handles not the one of the face so i have to save the face vertices handles extra before!
+                HandleVertex hvFrom = hFaceVerts[i];
+                if (i+1 <= lastVert)
+                {
+                    HandleVertex hvTo = hFaceVerts[i + 1];
+                    _LedgeHndl.Add(
+                            _GeometryContainer.AddEdge(hvFrom, hvTo)
+                        );
+                }
+                else
+                {
+                    HandleVertex hvTo = hFaceVerts[0];
+                    _LedgeHndl.Add(
+                                _GeometryContainer.AddEdge(hvFrom, hFaceVerts[0])
+                            );
+                }
             }
+
             // Now don't forget the hedge the face points to, best the first one inserted from the edge handle list or something like that.
         }
 

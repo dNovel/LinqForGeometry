@@ -112,7 +112,6 @@ namespace hsfurtwangen.dsteffen.lfg
         {
             int index = _LvertexVal.FindIndex(vert => vert.Equals(v));
             return index >= 0 ? index : -1;
-            //return (_LvertexVal.Find(vert => vert.Equals(v))) != null ? true : false;
         }
 
         /// <summary>
@@ -120,34 +119,41 @@ namespace hsfurtwangen.dsteffen.lfg
         /// </summary>
         /// <param name="hv1">Vertex From</param>
         /// <param name="hv2">Vertex To</param>
-        public HandleEdge AddEdge(HandleVertex hvFrom)
+        public HandleEdge AddEdge(HandleVertex hvFrom, HandleVertex hvTo)
         {
             // TODO: First check if connection is already existing, if so do return only the handle.
-            HEdgePtrCont hedge1 = new HEdgePtrCont();
-            HEdgePtrCont hedge2 = new HEdgePtrCont();
+            if(!GetConnection(hvFrom, hvTo))
+            {
+            
+                HEdgePtrCont hedge1 = new HEdgePtrCont();
+                HEdgePtrCont hedge2 = new HEdgePtrCont();
 
-            hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
-            hedge1._v._DataIndex = hvFrom._DataIndex + 1;
-            hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
-            hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : _LhedgePtrCont.Count + 2;
+                hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
+                hedge1._v._DataIndex = hvTo._DataIndex;
+                hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
+                //hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : _LhedgePtrCont.Count + 2;
+                hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
 
-            hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
-            hedge2._v._DataIndex = hvFrom._DataIndex;
-            hedge2._f._DataIndex = _LfacePtrCont.Count - 1;
-            hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1;
+                hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
+                hedge2._v._DataIndex = hvFrom._DataIndex;
+                hedge2._f._DataIndex = _LfacePtrCont.Count - 1;
+                hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1;
 
-            _LhedgePtrCont.Add(hedge1);
-            _LhedgePtrCont.Add(hedge2);
-
-            _LedgePtrCont.Add(
-                new EdgePtrCont()
-                {
-                    _he1 = hedge1,
-                    _he2 = hedge2
-                }
-            );
-
-            return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1};
+                _LhedgePtrCont.Add(hedge1);
+                _LhedgePtrCont.Add(hedge2);
+                _LedgePtrCont.Add(
+                    new EdgePtrCont()
+                    {
+                        _he1 = hedge1,
+                        _he2 = hedge2
+                    }
+                );
+                return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1};
+            }
+            else
+            {
+                return new HandleEdge() { _DataIndex = hvTo._DataIndex - 1 };
+            }
         }
 
         /// <summary>
@@ -190,8 +196,22 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns></returns>
         public Boolean GetConnection(HandleVertex hv1, HandleVertex hv2)
         {
-            //TODO: Lambda LINQ stuff here.
-            return false;
+            // TODO: Replace with some lambda linq perhaps.
+            if(_LedgePtrCont.Count <= 0)
+            {
+                return false;
+            }
+            else
+            {
+                foreach(EdgePtrCont edge in _LedgePtrCont)
+                {
+                    if (edge._he1._v._DataIndex == hv2._DataIndex && edge._he2._v._DataIndex == hv1._DataIndex)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
     }
