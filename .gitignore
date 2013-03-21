@@ -176,3 +176,4 @@ commit_msg_helper.txt
 # Ignore these folders
 documentation/sandcastle/Help/
 documentation/uml/
+LinqForGeometry/assets/
