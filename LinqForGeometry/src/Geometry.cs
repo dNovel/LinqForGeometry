@@ -13,6 +13,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
 using Fusee.Math;
 
 using hsfurtwangen.dsteffen.lfg.structs.ptrcontainer;
@@ -116,44 +117,34 @@ namespace hsfurtwangen.dsteffen.lfg
 
         /// <summary>
         /// This method adds a edge to the container. The edge is 'drawn' between two vertices
+        /// It first checks if a connection is already present. If so it returns a handle to this connection
+        /// If not it will establish a connection between the two input vertices.
         /// </summary>
         /// <param name="hv1">Vertex From</param>
         /// <param name="hv2">Vertex To</param>
         public HandleEdge AddEdge(HandleVertex hvFrom, HandleVertex hvTo)
         {
-            // TODO: First check if connection is already existing, if so do return only the handle.
-            if(!GetConnection(hvFrom, hvTo))
+            HandleEdge hndlEdge;
+            if (GetOrAddConnection(hvFrom, hvTo, out hndlEdge))
             {
-            
-                HEdgePtrCont hedge1 = new HEdgePtrCont();
-                HEdgePtrCont hedge2 = new HEdgePtrCont();
+                Console.WriteLine("out param index: " + hndlEdge._DataIndex);
 
-                hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
-                hedge1._v._DataIndex = hvTo._DataIndex;
-                hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
-                //hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : _LhedgePtrCont.Count + 2;
-                hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
-
-                hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
-                hedge2._v._DataIndex = hvFrom._DataIndex;
-                hedge2._f._DataIndex = _LfacePtrCont.Count - 1;
-                hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1;
-
-                _LhedgePtrCont.Add(hedge1);
-                _LhedgePtrCont.Add(hedge2);
-                _LedgePtrCont.Add(
-                    new EdgePtrCont()
-                    {
-                        _he1 = hedge1,
-                        _he2 = hedge2
-                    }
-                );
-                return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1};
+                EdgePtrCont tmpEdge = _LedgePtrCont[hndlEdge._DataIndex];
+                tmpEdge._he2._f._DataIndex = _LfacePtrCont.Count - 1;
+                _LedgePtrCont.RemoveAt(hndlEdge._DataIndex);
+                _LedgePtrCont.Insert(hndlEdge._DataIndex, tmpEdge);
             }
-            else
-            {
-                return new HandleEdge() { _DataIndex = hvTo._DataIndex - 1 };
-            }
+
+            // TODO: I'm not sure with this. probably better to run over all the edes at the end and update the faces of them hm.
+            // Perhaps everytime after i inserted a face. ;)
+            int idx = _LedgePtrCont[hndlEdge._DataIndex]._he1._he._DataIndex;
+            HEdgePtrCont tmpHedge = _LhedgePtrCont[idx];
+            tmpHedge._f._DataIndex = _LfacePtrCont.Count - 1;
+            _LhedgePtrCont.RemoveAt(idx);
+            _LhedgePtrCont.Insert(idx, tmpHedge);
+            Console.WriteLine("Val for f at id: " + idx + "is " + _LhedgePtrCont[idx]._f._DataIndex);
+
+            return new HandleEdge() { _DataIndex = hndlEdge._DataIndex };
         }
 
         /// <summary>
@@ -187,31 +178,65 @@ namespace hsfurtwangen.dsteffen.lfg
             return points;
         }
 
-
         /// <summary>
-        /// Can test if there is already a connection between two vertice handles present
+        /// Returns true if a connection already exists and fills the out parameter with a handle to the edge
         /// </summary>
-        /// <param name="hv1"></param>
-        /// <param name="hv2"></param>
+        /// <param name="hv1">HandleVertex From vertex</param>
+        /// <param name="hv2">HandleVertex To vertex</param>
+        /// <param name="he">HandleEdge is filled when connection already exists with valid index otherwise with -1</param>
         /// <returns></returns>
-        public Boolean GetConnection(HandleVertex hv1, HandleVertex hv2)
+        public bool GetOrAddConnection(HandleVertex hv1, HandleVertex hv2, out HandleEdge he)
         {
-            // TODO: Replace with some lambda linq perhaps.
-            if(_LedgePtrCont.Count <= 0)
+            int indexOfEdge = _LedgePtrCont.FindIndex(edge => edge._he1._v._DataIndex == hv2._DataIndex && edge._he2._v._DataIndex == hv1._DataIndex || edge._he1._v._DataIndex == hv1._DataIndex && edge._he2._v._DataIndex == hv2._DataIndex);
+            if (indexOfEdge >= 0)
             {
-                return false;
+                he = new HandleEdge() { _DataIndex = indexOfEdge };
+                Console.WriteLine("edge exists, edge count " + _LedgePtrCont.Count);
+                return true;
             }
             else
             {
-                foreach(EdgePtrCont edge in _LedgePtrCont)
-                {
-                    if (edge._he1._v._DataIndex == hv2._DataIndex && edge._he2._v._DataIndex == hv1._DataIndex)
-                    {
-                        return true;
-                    }
-                }
+                he._DataIndex = CreateConnection(hv1, hv2)._DataIndex;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Establishes a connection between two vertices.
+        /// 1) Creates two half-edges
+        /// 2) Fills them with information
+        /// 3) Creates an edge pointer container and adds it to the geo container.
+        /// 4) returns a handle to an edge
+        /// </summary>
+        /// <param name="hv1"></param>
+        /// <param name="hv2"></param>
+        public HandleEdge CreateConnection(HandleVertex hvFrom, HandleVertex hvTo)
+        {
+            HEdgePtrCont hedge1 = new HEdgePtrCont();
+            HEdgePtrCont hedge2 = new HEdgePtrCont();
+
+            hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
+            hedge1._v._DataIndex = hvTo._DataIndex;
+            hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
+            //hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : _LhedgePtrCont.Count + 2;
+            hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
+
+            hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
+            hedge2._v._DataIndex = hvFrom._DataIndex;
+            hedge2._f._DataIndex = -1;
+            hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1;
+
+            _LhedgePtrCont.Add(hedge1);
+            _LhedgePtrCont.Add(hedge2);
+            _LedgePtrCont.Add(
+                new EdgePtrCont()
+                {
+                    _he1 = hedge1,
+                    _he2 = hedge2
+                }
+            );
+
+            return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1 };
         }
 
     }

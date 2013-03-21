@@ -45,7 +45,6 @@ namespace hsfurtwangen.dsteffen.lfg
             {
                 AddFace(gf);
             }
-
         }
 
         /// <summary>
@@ -66,12 +65,12 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="gf">GeoFace object from the importer</param>
         private void AddFace(GeoFace gf)
         {
-            List<HandleVertex> hFaceVerts = new List<HandleVertex>();
 
             _LfaceHndl.Add(
                 _GeometryContainer.AddFace(gf)
                 );
 
+            List<HandleVertex> hFaceVerts = new List<HandleVertex>();
             foreach (float3 vVal in gf._LFVertices)
             {
                 hFaceVerts.Add(
@@ -79,14 +78,10 @@ namespace hsfurtwangen.dsteffen.lfg
                     );
             }
 
-            // Now create the hedges for the face, first the inner ones then the outer ones.
-            // Here have to be two vertices. does not work otherwise :/
-            // Best go through with for loop and count so i can set the second with an id.
             int cVertsInFace = hFaceVerts.Count;
             int lastVert = cVertsInFace - 1;
             for (int i = 0; i < cVertsInFace; i++)
             {
-                // TODO: This will not work as im always counting all vertice handles not the one of the face so i have to save the face vertices handles extra before!
                 HandleVertex hvFrom = hFaceVerts[i];
                 if (i+1 <= lastVert)
                 {
@@ -105,6 +100,7 @@ namespace hsfurtwangen.dsteffen.lfg
             }
 
             // Now don't forget the hedge the face points to, best the first one inserted from the edge handle list or something like that.
+            // TODO: Why not the last one as its way easier i think
         }
 
     }

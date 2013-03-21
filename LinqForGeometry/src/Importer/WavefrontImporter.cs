@@ -17,6 +17,7 @@ using System.Text;
 using System.IO;
 
 using Fusee.Math;
+using hsfurtwangen.dsteffen.lfg.globalinf;
 
 namespace hsfurtwangen.dsteffen.lfg.Importer
 {
@@ -95,7 +96,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
 
                 foreach (String line in LgeoValues)
                 {
-                    string lineStart = line.Substring(0, 2);
+                    string lineStart = line.Length > 2 ? line.Substring(0, 2) : line.Substring(0, line.Length);
 
                     if (lineStart.Equals("v "))
                     {
@@ -104,7 +105,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                         List<Double> tmpSave = new List<double>();
                         foreach (string str in lineSplitted)
                         {
-                            if (!str.StartsWith("v"))
+                            if (!str.StartsWith("v") && !str.Equals(""))
                             {
                                 tmpSave.Add(float.Parse(str, CultureInfo.InvariantCulture));
                             }
@@ -136,7 +137,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                     {
                         // face
                         // there are faces, faces with texture coord, faces with vertex normals and faces with text and normals
-                        Console.WriteLine("Face found, values: " + line);
+                        Console.WriteLine(LFGMessages.INFO_FACEFOUND + line);
                         string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
                         List<Double> tmpSave = new List<double>();
 
@@ -148,7 +149,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                             {
                                 string[] faceSplit = str.Split(splitChar2, StringSplitOptions.None);
                                 string s = faceSplit[0];
-                                Console.WriteLine("Here is s: " + s);
+                                Console.WriteLine(LFGMessages.INFO_VERTEXIDFORFACE + s);
                                 if (s != null || s != "" || !s.Equals("") || !s.Equals(" ") || s != " " || !s.Equals("\n") || s != "\n" || s != "\0" || !s.Equals("\0") || !s.Equals("\r") || s != "\r")
                                 {
                                     try
@@ -158,7 +159,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                                     }
                                     catch (FormatException)
                                     {
-                                        Console.WriteLine("This is not a valid value: " + s);
+                                        Console.WriteLine(LFGMessages.WARNING_INVALIDCHAR + s);
                                         continue;
                                     }
                                 }
