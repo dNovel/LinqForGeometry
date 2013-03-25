@@ -65,7 +65,6 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="gf">GeoFace object from the importer</param>
         private void AddFace(GeoFace gf)
         {
-
             _LfaceHndl.Add(
                 _GeometryContainer.AddFace(gf)
                 );
@@ -78,6 +77,8 @@ namespace hsfurtwangen.dsteffen.lfg
                     );
             }
 
+
+            List<HandleEdge> LtmpEdgesPerFace = new List<HandleEdge>();
             int cVertsInFace = hFaceVerts.Count;
             int lastVert = cVertsInFace - 1;
             for (int i = 0; i < cVertsInFace; i++)
@@ -89,6 +90,9 @@ namespace hsfurtwangen.dsteffen.lfg
                     _LedgeHndl.Add(
                             _GeometryContainer.AddEdge(hvFrom, hvTo)
                         );
+                    LtmpEdgesPerFace.Add(
+                            _LedgeHndl[_LedgeHndl.Count - 1]
+                        );
                 }
                 else
                 {
@@ -96,11 +100,32 @@ namespace hsfurtwangen.dsteffen.lfg
                     _LedgeHndl.Add(
                                 _GeometryContainer.AddEdge(hvFrom, hFaceVerts[0])
                             );
+                    
+                    LtmpEdgesPerFace.Add(
+                            _LedgeHndl[_LedgeHndl.Count - 1]
+                        );
                 }
             }
 
-            // Now don't forget the hedge the face points to, best the first one inserted from the edge handle list or something like that.
-            // TODO: Why not the last one as its way easier i think
+            // Update the face handle, so that it points to the first half edge the face consists of.
+            _GeometryContainer.UpdateFaceToHedgePtr(LtmpEdgesPerFace[0]);
+
+            foreach (HandleEdge handleEdge in LtmpEdgesPerFace) {
+                _GeometryContainer.IsValidEdge(handleEdge);
+            }
+
+            // Fix the first CCW half edge so its next pointer is set to the last half edge of the face
+            _GeometryContainer.UpdateFirstCCWHedge(LtmpEdgesPerFace[0], LtmpEdgesPerFace[LtmpEdgesPerFace.Count - 1]);
+
+            // TODO: Update all the next pointers for the half edges of the face here... Task ID: 26
+            /*
+             * for each handle in handlelist
+             *      go over the handle
+             *      retrieve the last handle
+             *      if not last update to the next + 1
+             *      save to the global list
+             *      done
+             */
         }
 
     }

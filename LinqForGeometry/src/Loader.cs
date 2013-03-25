@@ -35,7 +35,7 @@ namespace hsfurtwangen.dsteffen.lfg
             stopWatch.Stop();
             TimeSpan timeSpan = stopWatch.Elapsed;
             string timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
-            Console.WriteLine("Time needede to import the object: " + timeDone);
+            Console.WriteLine("Time needed to import the object: " + timeDone);
 
 
             // do something interesting ...

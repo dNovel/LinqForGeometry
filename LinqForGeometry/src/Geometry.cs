@@ -64,13 +64,73 @@ namespace hsfurtwangen.dsteffen.lfg
                 {
                     _h = new HandleHalfEdge()
                     {
-                        _DataIndex = face._LFVertices.Count - 1
+                        _DataIndex = -1
                     }
                 }
             );
             HandleFace fHndl = new HandleFace();
             fHndl._DataIndex = _LfacePtrCont.Count - 1;
             return fHndl;
+        }
+
+        /// <summary>
+        /// This updates the half-edge a face points to.
+        /// Is called directly after inserting a face and its vertices, edges to the container is done
+        /// </summary>
+        /// <param name="handleEdge">the Edge Handle "containing" the half-edge the face should point to</param>
+        public void UpdateFaceToHedgePtr(HandleEdge handleEdge)
+        {
+            FacePtrCont faceCont = _LfacePtrCont[_LfacePtrCont.Count - 1];
+            faceCont._h._DataIndex = _LedgePtrCont[handleEdge._DataIndex]._he1._he._DataIndex - 1;
+            _LfacePtrCont.RemoveAt(_LfacePtrCont.Count - 1);
+            _LfacePtrCont.Add(faceCont);
+        }
+
+        /// <summary>
+        /// Updates the neighbour of the first edge at the face so the CCW rotation can work.
+        /// </summary>
+        /// <param name="handleEdge">Handle to the first edge of the face</param>
+        public void UpdateFirstCCWHedge(HandleEdge handleEdge, HandleEdge lastEdgeHandle) {
+            EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
+            edge._he2._nhe._DataIndex = lastEdgeHandle._DataIndex;
+            _LedgePtrCont.RemoveAt(handleEdge._DataIndex);
+            _LedgePtrCont.Insert(handleEdge._DataIndex, edge);
+            // TODO: The half edge has not been fixed. normally they should be fixed the half edge also when its updated. Related to Task ID: 27
+        }
+    
+
+        /// <summary>
+        /// Expects a handle to an edge that belongs to a face. Then it will test if the second hedge in this edge is not yet used and when the first hedge does not yet point
+        /// to the face the second hedge should point to it.
+        /// </summary>
+        /// <param name="handleEdge">Handle to an edge that belongs to a face</param>
+        public void IsValidEdge(HandleEdge handleEdge)
+        {
+            EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
+
+            Console.WriteLine("h2 is valid before: " +
+                edge._he2._f.isValid.ToString()
+                );
+
+            if (edge._he1._f.isValid && edge._he2._f.isValid)
+            {
+                // Both valid, do nothing. Should not appear Oo.
+            }
+            else if (edge._he1._f.isValid && !edge._he2._f.isValid && edge._he1._f._DataIndex != _LfacePtrCont.Count() - 1)
+            {
+                // One is valid, two not. So change index at two.
+                edge._he2._f._DataIndex = _LfacePtrCont.Count() - 1;
+                _LedgePtrCont.RemoveAt(handleEdge._DataIndex);
+                _LedgePtrCont.Insert(handleEdge._DataIndex, edge);
+            }
+            else if (!edge._he1._f.isValid && edge._he2._f.isValid)
+            {
+                Console.WriteLine(globalinf.LFGMessages.WARNING_INVALIDCASE);
+            }
+
+            Console.WriteLine("h2 is valid after: " +
+                edge._he2._f.isValid.ToString()
+                );
         }
 
         /// <summary>
@@ -125,25 +185,7 @@ namespace hsfurtwangen.dsteffen.lfg
         public HandleEdge AddEdge(HandleVertex hvFrom, HandleVertex hvTo)
         {
             HandleEdge hndlEdge;
-            if (GetOrAddConnection(hvFrom, hvTo, out hndlEdge))
-            {
-                Console.WriteLine("out param index: " + hndlEdge._DataIndex);
-
-                EdgePtrCont tmpEdge = _LedgePtrCont[hndlEdge._DataIndex];
-                tmpEdge._he2._f._DataIndex = _LfacePtrCont.Count - 1;
-                _LedgePtrCont.RemoveAt(hndlEdge._DataIndex);
-                _LedgePtrCont.Insert(hndlEdge._DataIndex, tmpEdge);
-            }
-
-            // TODO: I'm not sure with this. probably better to run over all the edes at the end and update the faces of them hm.
-            // Perhaps everytime after i inserted a face. ;)
-            int idx = _LedgePtrCont[hndlEdge._DataIndex]._he1._he._DataIndex;
-            HEdgePtrCont tmpHedge = _LhedgePtrCont[idx];
-            tmpHedge._f._DataIndex = _LfacePtrCont.Count - 1;
-            _LhedgePtrCont.RemoveAt(idx);
-            _LhedgePtrCont.Insert(idx, tmpHedge);
-            Console.WriteLine("Val for f at id: " + idx + "is " + _LhedgePtrCont[idx]._f._DataIndex);
-
+            GetOrAddConnection(hvFrom, hvTo, out hndlEdge);
             return new HandleEdge() { _DataIndex = hndlEdge._DataIndex };
         }
 
@@ -191,7 +233,6 @@ namespace hsfurtwangen.dsteffen.lfg
             if (indexOfEdge >= 0)
             {
                 he = new HandleEdge() { _DataIndex = indexOfEdge };
-                Console.WriteLine("edge exists, edge count " + _LedgePtrCont.Count);
                 return true;
             }
             else
@@ -218,13 +259,14 @@ namespace hsfurtwangen.dsteffen.lfg
             hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
             hedge1._v._DataIndex = hvTo._DataIndex;
             hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
-            //hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : _LhedgePtrCont.Count + 2;
+            // TODO: This should be inserted after the face is inserted Task ID: 26
             hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
 
             hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
             hedge2._v._DataIndex = hvFrom._DataIndex;
             hedge2._f._DataIndex = -1;
-            hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1;
+            // TODO: This should be inserted after the face is inserted Task ID: 26
+            hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1 < 0 ? 0 /* fix */: hedge2._he._DataIndex - 1;
 
             _LhedgePtrCont.Add(hedge1);
             _LhedgePtrCont.Add(hedge2);

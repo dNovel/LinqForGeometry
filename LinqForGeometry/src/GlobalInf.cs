@@ -26,8 +26,11 @@ namespace hsfurtwangen.dsteffen.lfg.globalinf
 
         // Messages used for text output
         public static string WARNING_INVALIDCHAR = _WARNING + "Invalid character in .obj file found.";
+        public static string WARNING_INVALIDCASE = _WARNING + "Invalid case in control sequence";
+
         public static string INFO_VERTEXIDFORFACE = _INFO + "Vertex ID connected to current face: ";
         public static string INFO_FACEFOUND = _INFO + "Face found in importer, values: ";
+
         public static string UTIL_STOPWFORMAT = "{0:00}sec, {1:00}ms";
     }
 }
