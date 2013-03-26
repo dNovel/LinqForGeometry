@@ -21,10 +21,7 @@ namespace hsfurtwangen.dsteffen.lfg.structs.ptrcontainer
     /// </summary>
     internal struct EdgePtrCont
     {
-        internal HEdgePtrCont _he1;
-        internal HEdgePtrCont _he2;
-        // TODO: Should be like this Task ID: 27
-        //internal HandleHalfEdge _he1;
-        //internal HandleHalfEdge _he2;
+        internal HandleHalfEdge _he1;
+        internal HandleHalfEdge _he2;
     }
 }

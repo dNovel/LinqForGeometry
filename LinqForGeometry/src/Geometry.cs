@@ -80,8 +80,19 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="handleEdge">the Edge Handle "containing" the half-edge the face should point to</param>
         public void UpdateFaceToHedgePtr(HandleEdge handleEdge)
         {
-            FacePtrCont faceCont = _LfacePtrCont[_LfacePtrCont.Count - 1];
-            faceCont._h._DataIndex = _LedgePtrCont[handleEdge._DataIndex]._he1._he._DataIndex - 1;
+            FacePtrCont faceCont = _LfacePtrCont.Count - 1 < 0 ? _LfacePtrCont[0] : _LfacePtrCont[_LfacePtrCont.Count - 1];
+            // TODO: This seems odd. Try looking up if the face the he1 points to is our current face, if not take a look at he2.
+            HEdgePtrCont hEdgePtrCont1 = _LhedgePtrCont[_LedgePtrCont[handleEdge._DataIndex]._he1._DataIndex];
+            HEdgePtrCont hEdgePtrCont2 = _LhedgePtrCont[_LedgePtrCont[handleEdge._DataIndex]._he2._DataIndex];
+
+            if (hEdgePtrCont1._f._DataIndex == _LfacePtrCont.Count - 1)
+            {
+                faceCont._h._DataIndex = _LedgePtrCont[handleEdge._DataIndex]._he1._DataIndex;
+            }
+            else
+            {
+                faceCont._h._DataIndex = _LedgePtrCont[handleEdge._DataIndex]._he2._DataIndex;
+            }
             _LfacePtrCont.RemoveAt(_LfacePtrCont.Count - 1);
             _LfacePtrCont.Add(faceCont);
         }
@@ -102,20 +113,25 @@ namespace hsfurtwangen.dsteffen.lfg
                 if (firstDone)
                 {
                     EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    HEdgePtrCont hedge1 = _LhedgePtrCont[edgePtrCont._he1._DataIndex];
                     int index = enumEdges.Current._DataIndex;
                     if (enumEdges.MoveNext())
                     {
-                        edgePtrCont._he1._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he1._he._DataIndex - 1;
+                        hedge1._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he1._DataIndex]._he._DataIndex - 1;
                         // save to global list
-                        _LedgePtrCont.RemoveAt(index);
-                        _LedgePtrCont.Insert(index, edgePtrCont);
+                        _LhedgePtrCont.RemoveAt(edgePtrCont._he1._DataIndex);
+                        _LhedgePtrCont.Insert(edgePtrCont._he1._DataIndex, hedge1);
+                        //_LedgePtrCont.RemoveAt(index);
+                        //_LedgePtrCont.Insert(index, edgePtrCont);
                     }
                     else
                     {
-                        edgePtrCont._he1._nhe._DataIndex = _LedgePtrCont[edgeList[0]._DataIndex]._he1._he._DataIndex - 1;
+                        hedge1._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he1._DataIndex]._he._DataIndex - 1;
                         // save to global list
-                        _LedgePtrCont.RemoveAt(index);
-                        _LedgePtrCont.Insert(index, edgePtrCont);
+                        _LhedgePtrCont.RemoveAt(edgePtrCont._he1._DataIndex);
+                        _LhedgePtrCont.Insert(edgePtrCont._he1._DataIndex, hedge1);
+                        //_LedgePtrCont.RemoveAt(index);
+                        //_LedgePtrCont.Insert(index, edgePtrCont);
                         end = true;
                     }
                 }
@@ -123,12 +139,15 @@ namespace hsfurtwangen.dsteffen.lfg
                 {
                     enumEdges.MoveNext();
                     EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    HEdgePtrCont hedge1 = _LhedgePtrCont[edgePtrCont._he1._DataIndex];
                     int index = enumEdges.Current._DataIndex;
                     enumEdges.MoveNext();
-                    edgePtrCont._he1._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he1._he._DataIndex - 1;
+                    hedge1._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he1._DataIndex]._he._DataIndex - 1;
                     // save to global list
-                    _LedgePtrCont.RemoveAt(index);
-                    _LedgePtrCont.Insert(index, edgePtrCont);
+                    _LhedgePtrCont.RemoveAt(edgePtrCont._he1._DataIndex);
+                    _LhedgePtrCont.Insert(edgePtrCont._he1._DataIndex, hedge1);
+                    //_LedgePtrCont.RemoveAt(index);
+                    //_LedgePtrCont.Insert(index, edgePtrCont);
                     firstDone = true;
                 }
             }
@@ -150,20 +169,25 @@ namespace hsfurtwangen.dsteffen.lfg
                 if (firstDone)
                 {
                     EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    HEdgePtrCont hedge2 = _LhedgePtrCont[edgePtrCont._he2._DataIndex];
                     int index = enumEdges.Current._DataIndex;
                     if (enumEdges.MoveNext())
                     {
-                        edgePtrCont._he2._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he2._he._DataIndex + 1;
+                        hedge2._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he2._DataIndex]._he._DataIndex + 1;
                         // save to global list
-                        _LedgePtrCont.RemoveAt(index);
-                        _LedgePtrCont.Insert(index, edgePtrCont);
+                        _LhedgePtrCont.RemoveAt(edgePtrCont._he2._DataIndex);
+                        _LhedgePtrCont.Insert(edgePtrCont._he2._DataIndex, hedge2);
+                        //_LedgePtrCont.RemoveAt(index);
+                        //_LedgePtrCont.Insert(index, edgePtrCont);
                     }
                     else
                     {
-                        edgePtrCont._he2._nhe._DataIndex = _LedgePtrCont[edgeList[0]._DataIndex]._he2._he._DataIndex + 1;
+                        hedge2._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he2._DataIndex]._he._DataIndex + 1;
                         // save to global list
-                        _LedgePtrCont.RemoveAt(index);
-                        _LedgePtrCont.Insert(index, edgePtrCont);
+                        _LhedgePtrCont.RemoveAt(edgePtrCont._he2._DataIndex);
+                        _LhedgePtrCont.Insert(edgePtrCont._he2._DataIndex, hedge2);
+                        //_LedgePtrCont.RemoveAt(index);
+                        //_LedgePtrCont.Insert(index, edgePtrCont);
                         end = true;
                     }
                 }
@@ -171,12 +195,15 @@ namespace hsfurtwangen.dsteffen.lfg
                 {
                     enumEdges.MoveNext();
                     EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    HEdgePtrCont hedge2 = _LhedgePtrCont[edgePtrCont._he2._DataIndex];
                     int index = enumEdges.Current._DataIndex;
                     enumEdges.MoveNext();
-                    edgePtrCont._he2._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he2._he._DataIndex + 1;
+                    hedge2._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he2._DataIndex]._he._DataIndex + 1;
                     // save to global list
-                    _LedgePtrCont.RemoveAt(index);
-                    _LedgePtrCont.Insert(index, edgePtrCont);
+                    _LhedgePtrCont.RemoveAt(edgePtrCont._he2._DataIndex);
+                    _LhedgePtrCont.Insert(edgePtrCont._he2._DataIndex, hedge2);
+                    //_LedgePtrCont.RemoveAt(index);
+                    //_LedgePtrCont.Insert(index, edgePtrCont);
                     firstDone = true;
                 }
             }
@@ -184,34 +211,47 @@ namespace hsfurtwangen.dsteffen.lfg
 
 
         /// <summary>
-        /// Expects a handle to an edge that belongs to a face. Then it will test if the second hedge in this edge is not yet used and when the first hedge does not yet point
-        /// to the face the second hedge should point to it.
+        /// Expects a handle to an edge that belongs to a face.
+        /// If the first hedge does point to the current face but another and the second does not point to any face it will point to the current face.
         /// </summary>
-        /// <param name="handleEdge">Handle to an edge that belongs to a face</param>
+        /// <param name="handleEdge">Handle to an edge that belongs to the current processed face</param>
         public void IsValidEdge(HandleEdge handleEdge)
         {
             EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
+            HEdgePtrCont hedge1 = _LhedgePtrCont[edge._he1._DataIndex];
+            HEdgePtrCont hedge2 = _LhedgePtrCont[edge._he2._DataIndex];
+
+            int indexOfhedge2 = edge._he2._DataIndex; // problem starts here
 
             if (globalinf.LFGMessages._DEBUGOUTPUT)
             {
                 Console.WriteLine("");
                 Console.WriteLine("h2 is valid before: " +
-                                  edge._he2._f.isValid.ToString()
+                                  _LhedgePtrCont[edge._he2._DataIndex]._f.isValid.ToString()
                     );
             }
 
-            if (edge._he1._f.isValid && edge._he2._f.isValid)
+            if (_LhedgePtrCont[edge._he1._DataIndex]._f.isValid && _LhedgePtrCont[edge._he2._DataIndex]._f.isValid)
             {
                 // Both valid, do nothing. Should not appear Oo.
             }
-            else if (edge._he1._f.isValid && !edge._he2._f.isValid && edge._he1._f._DataIndex != _LfacePtrCont.Count() - 1)
+            else if (_LhedgePtrCont[edge._he1._DataIndex]._f.isValid && !_LhedgePtrCont[edge._he2._DataIndex]._f.isValid && _LhedgePtrCont[edge._he1._DataIndex]._f._DataIndex != _LfacePtrCont.Count() - 1)
             {
                 // One is valid, two not. So change index at two.
-                edge._he2._f._DataIndex = _LfacePtrCont.Count() - 1;
+                hedge2._f._DataIndex = _LfacePtrCont.Count() - 1;
+
+                _LhedgePtrCont.RemoveAt(indexOfhedge2); // crash here
+                _LhedgePtrCont.Insert(indexOfhedge2, hedge2);
+
+                edge._he2._DataIndex = indexOfhedge2;
+                if (globalinf.LFGMessages._DEBUGOUTPUT)
+                {
+                    Console.Write("Index of he2 = " + indexOfhedge2);
+                }
                 _LedgePtrCont.RemoveAt(handleEdge._DataIndex);
                 _LedgePtrCont.Insert(handleEdge._DataIndex, edge);
             }
-            else if (!edge._he1._f.isValid && edge._he2._f.isValid)
+            else if (!_LhedgePtrCont[edge._he1._DataIndex]._f.isValid && _LhedgePtrCont[edge._he2._DataIndex]._f.isValid)
             {
                 Console.WriteLine(globalinf.LFGMessages.WARNING_INVALIDCASE);
             }
@@ -219,7 +259,7 @@ namespace hsfurtwangen.dsteffen.lfg
             if (globalinf.LFGMessages._DEBUGOUTPUT)
             {
                 Console.WriteLine("h2 is valid after: " +
-                                  edge._he2._f.isValid.ToString()
+                                  _LhedgePtrCont[edge._he2._DataIndex]._f.isValid.ToString()
                     );
             }
         }
@@ -320,10 +360,21 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns></returns>
         public bool GetOrAddConnection(HandleVertex hv1, HandleVertex hv2, out HandleEdge he)
         {
-            int indexOfEdge = _LedgePtrCont.FindIndex(edge => edge._he1._v._DataIndex == hv2._DataIndex && edge._he2._v._DataIndex == hv1._DataIndex || edge._he1._v._DataIndex == hv1._DataIndex && edge._he2._v._DataIndex == hv2._DataIndex);
-            if (indexOfEdge >= 0)
+            //int indexOfEdge = _LedgePtrCont.FindIndex(edge => _LhedgePtrCont[edge._he1._DataIndex]._v._DataIndex == hv2._DataIndex && _LhedgePtrCont[edge._he2._DataIndex]._v._DataIndex == hv1._DataIndex || _LhedgePtrCont[edge._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edge._he2._DataIndex]._v._DataIndex == hv2._DataIndex);
+            //int indexOfEdge = _LedgePtrCont.FindIndex(edge => _LhedgePtrCont[edge._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edge._he2._DataIndex]._v._DataIndex == hv2._DataIndex);
+            int index = -1;
+            //foreach (EdgePtrCont edgePtrCont in _LedgePtrCont.Where(edgePtrCont => _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv2._DataIndex))
+            foreach (EdgePtrCont edgePtrCont in _LedgePtrCont.Where(edgePtrCont => _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv2._DataIndex))
             {
-                he = new HandleEdge() { _DataIndex = indexOfEdge };
+                if (globalinf.LFGMessages._DEBUGOUTPUT)
+                {
+                    Console.WriteLine("Existing Connection found!");
+                }
+                index = hv1._DataIndex > 0 ? 0 : hv1._DataIndex;
+            }
+            if (index >= 0)
+            {
+                he = new HandleEdge() { _DataIndex = index };
                 return true;
             }
             else
@@ -350,15 +401,11 @@ namespace hsfurtwangen.dsteffen.lfg
             hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
             hedge1._v._DataIndex = hvTo._DataIndex;
             hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
-            // TODO: This should be inserted after the face is inserted Task ID: 26
-            //hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
             hedge1._nhe._DataIndex = -1;
 
             hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
             hedge2._v._DataIndex = hvFrom._DataIndex;
             hedge2._f._DataIndex = -1;
-            // TODO: This should be inserted after the face is inserted Task ID: 26
-            //hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1 < 0 ? 0 /* fix */: hedge2._he._DataIndex - 1;
             hedge2._nhe._DataIndex = -1;
 
             _LhedgePtrCont.Add(hedge1);
@@ -366,10 +413,27 @@ namespace hsfurtwangen.dsteffen.lfg
             _LedgePtrCont.Add(
                 new EdgePtrCont()
                 {
-                    _he1 = hedge1,
-                    _he2 = hedge2
+                    _he1 = new HandleHalfEdge() { _DataIndex = _LedgePtrCont.Count > 0 ? _LedgePtrCont.Count * 2 : 0 },
+                    _he2 = new HandleHalfEdge() { _DataIndex = _LedgePtrCont.Count > 0 ? _LedgePtrCont.Count * 2 + 1 : 1 }
                 }
             );
+
+            // Update the vertices so they point to the correct hedges.
+            VertexPtrCont vertFrom = _LvertexPtrCont[hvFrom._DataIndex];
+            VertexPtrCont vertTo = _LvertexPtrCont[hvTo._DataIndex];
+
+            if (vertFrom._h._DataIndex == -1)
+            {
+                vertFrom._h._DataIndex = _LedgePtrCont[_LedgePtrCont.Count - 1]._he1._DataIndex;
+                _LvertexPtrCont.RemoveAt(hvFrom._DataIndex);
+                _LvertexPtrCont.Insert(hvFrom._DataIndex, vertFrom);
+            }
+            if (vertTo._h._DataIndex == -1)
+            {
+                vertTo._h._DataIndex = _LedgePtrCont[_LedgePtrCont.Count - 1]._he2._DataIndex;
+                _LvertexPtrCont.RemoveAt(hvTo._DataIndex);
+                _LvertexPtrCont.Insert(hvTo._DataIndex, vertTo);
+            }
 
             return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1 };
         }
