@@ -90,14 +90,110 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Updates the neighbour of the first edge at the face so the CCW rotation can work.
         /// </summary>
         /// <param name="handleEdge">Handle to the first edge of the face</param>
-        public void UpdateFirstCCWHedge(HandleEdge handleEdge, HandleEdge lastEdgeHandle) {
+        public void UpdateFirstCCWHedge(HandleEdge handleEdge, HandleEdge lastEdgeHandle)
+        {
             EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
             edge._he2._nhe._DataIndex = lastEdgeHandle._DataIndex;
             _LedgePtrCont.RemoveAt(handleEdge._DataIndex);
             _LedgePtrCont.Insert(handleEdge._DataIndex, edge);
             // TODO: The half edge has not been fixed. normally they should be fixed the half edge also when its updated. Related to Task ID: 27
         }
-    
+
+
+        /// <summary>
+        /// Updates the "inner" half edges clockwise so the next pointers are correct.
+        /// Is called after a face is inserted.
+        /// </summary>
+        /// <param name="edgeList">A list of edges that belong to a specific face</param>
+        public void UpdateCWHedges(List<HandleEdge> edgeList)
+        {
+            var enumEdges = edgeList.GetEnumerator();
+            bool end = false;
+            bool firstDone = false;
+            while (!end)
+            {
+                if (firstDone)
+                {
+                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    int index = enumEdges.Current._DataIndex;
+                    if (enumEdges.MoveNext())
+                    {
+                        edgePtrCont._he1._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he1._he._DataIndex - 1;
+                        // save to global list
+                        _LedgePtrCont.RemoveAt(index);
+                        _LedgePtrCont.Insert(index, edgePtrCont);
+                    }
+                    else
+                    {
+                        edgePtrCont._he1._nhe._DataIndex = _LedgePtrCont[edgeList[0]._DataIndex]._he1._he._DataIndex - 1;
+                        // save to global list
+                        _LedgePtrCont.RemoveAt(index);
+                        _LedgePtrCont.Insert(index, edgePtrCont);
+                        end = true;
+                    }
+                }
+                else
+                {
+                    enumEdges.MoveNext();
+                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    int index = enumEdges.Current._DataIndex;
+                    enumEdges.MoveNext();
+                    edgePtrCont._he1._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he1._he._DataIndex - 1;
+                    // save to global list
+                    _LedgePtrCont.RemoveAt(index);
+                    _LedgePtrCont.Insert(index, edgePtrCont);
+                    firstDone = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the "inner" half edges COUNTER clockwise so the next pointers are correct.
+        /// Is called after a face is inserted.
+        /// </summary>
+        /// <param name="edgeList">A list of edges that belong to a specific face</param>
+        public void UpdateCCWHedges(List<HandleEdge> edgeList) {
+            edgeList.Reverse();
+            var enumEdges = edgeList.GetEnumerator();
+            bool end = false;
+            bool firstDone = false;
+            while (!end)
+            {
+                if (firstDone)
+                {
+                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    int index = enumEdges.Current._DataIndex;
+                    if (enumEdges.MoveNext())
+                    {
+                        edgePtrCont._he2._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he2._he._DataIndex + 1;
+                        // save to global list
+                        _LedgePtrCont.RemoveAt(index);
+                        _LedgePtrCont.Insert(index, edgePtrCont);
+                    }
+                    else
+                    {
+                        edgePtrCont._he2._nhe._DataIndex = _LedgePtrCont[edgeList[0]._DataIndex]._he2._he._DataIndex + 1;
+                        // save to global list
+                        _LedgePtrCont.RemoveAt(index);
+                        _LedgePtrCont.Insert(index, edgePtrCont);
+                        end = true;
+                    }
+                }
+                else
+                {
+                    enumEdges.MoveNext();
+                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
+                    int index = enumEdges.Current._DataIndex;
+                    enumEdges.MoveNext();
+                    edgePtrCont._he2._nhe._DataIndex = _LedgePtrCont[enumEdges.Current._DataIndex]._he2._he._DataIndex + 1;
+                    // save to global list
+                    _LedgePtrCont.RemoveAt(index);
+                    _LedgePtrCont.Insert(index, edgePtrCont);
+                    firstDone = true;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Expects a handle to an edge that belongs to a face. Then it will test if the second hedge in this edge is not yet used and when the first hedge does not yet point
@@ -260,13 +356,15 @@ namespace hsfurtwangen.dsteffen.lfg
             hedge1._v._DataIndex = hvTo._DataIndex;
             hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
             // TODO: This should be inserted after the face is inserted Task ID: 26
-            hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
+            //hedge1._nhe._DataIndex = hvFrom._DataIndex == 0 ? 2 : hvTo._DataIndex == 0 ? 0 : _LhedgePtrCont.Count + 2;
+            hedge1._nhe._DataIndex = -1;
 
             hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
             hedge2._v._DataIndex = hvFrom._DataIndex;
             hedge2._f._DataIndex = -1;
             // TODO: This should be inserted after the face is inserted Task ID: 26
-            hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1 < 0 ? 0 /* fix */: hedge2._he._DataIndex - 1;
+            //hedge2._nhe._DataIndex = hedge2._he._DataIndex - 1 < 0 ? 0 /* fix */: hedge2._he._DataIndex - 1;
+            hedge2._nhe._DataIndex = -1;
 
             _LhedgePtrCont.Add(hedge1);
             _LhedgePtrCont.Add(hedge2);
