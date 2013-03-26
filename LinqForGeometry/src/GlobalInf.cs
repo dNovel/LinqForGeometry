@@ -19,10 +19,14 @@ namespace hsfurtwangen.dsteffen.lfg.globalinf
     /// </summary>
     static class LFGMessages
     {
+
         // Keywords
         private static string _INFO = "INFO: ";
         private static string _WARNING = "WARNING: ";
         private static string _ERROR = "ERROR: ";
+        
+        // Dev
+        public static bool _DEBUGOUTPUT = true;
 
         // Messages used for text output
         public static string WARNING_INVALIDCHAR = _WARNING + "Invalid character in .obj file found.";

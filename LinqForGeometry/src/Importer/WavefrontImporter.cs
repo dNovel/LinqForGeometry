@@ -137,7 +137,10 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                     {
                         // face
                         // there are faces, faces with texture coord, faces with vertex normals and faces with text and normals
-                        Console.WriteLine(LFGMessages.INFO_FACEFOUND + line);
+                        if (globalinf.LFGMessages._DEBUGOUTPUT)
+                        {
+                            Console.WriteLine(LFGMessages.INFO_FACEFOUND + line);
+                        }
                         string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
                         List<Double> tmpSave = new List<double>();
 
@@ -149,7 +152,11 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                             {
                                 string[] faceSplit = str.Split(splitChar2, StringSplitOptions.None);
                                 string s = faceSplit[0];
-                                Console.WriteLine(LFGMessages.INFO_VERTEXIDFORFACE + s);
+
+                                if (globalinf.LFGMessages._DEBUGOUTPUT)
+                                {
+                                    Console.WriteLine(LFGMessages.INFO_VERTEXIDFORFACE + s);
+                                }
                                 if (s != null || s != "" || !s.Equals("") || !s.Equals(" ") || s != " " || !s.Equals("\n") || s != "\n" || s != "\0" || !s.Equals("\0") || !s.Equals("\r") || s != "\r")
                                 {
                                     try
@@ -159,7 +166,10 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                                     }
                                     catch (FormatException)
                                     {
-                                        Console.WriteLine(LFGMessages.WARNING_INVALIDCHAR + s);
+                                        if (globalinf.LFGMessages._DEBUGOUTPUT)
+                                        {
+                                            Console.WriteLine(LFGMessages.WARNING_INVALIDCHAR + s);
+                                        }
                                         continue;
                                     }
                                 }

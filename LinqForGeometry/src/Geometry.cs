@@ -86,19 +86,6 @@ namespace hsfurtwangen.dsteffen.lfg
             _LfacePtrCont.Add(faceCont);
         }
 
-        /// <summary>
-        /// Updates the neighbour of the first edge at the face so the CCW rotation can work.
-        /// </summary>
-        /// <param name="handleEdge">Handle to the first edge of the face</param>
-        public void UpdateFirstCCWHedge(HandleEdge handleEdge, HandleEdge lastEdgeHandle)
-        {
-            EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
-            edge._he2._nhe._DataIndex = lastEdgeHandle._DataIndex;
-            _LedgePtrCont.RemoveAt(handleEdge._DataIndex);
-            _LedgePtrCont.Insert(handleEdge._DataIndex, edge);
-            // TODO: The half edge has not been fixed. normally they should be fixed the half edge also when its updated. Related to Task ID: 27
-        }
-
 
         /// <summary>
         /// Updates the "inner" half edges clockwise so the next pointers are correct.
@@ -152,7 +139,8 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Is called after a face is inserted.
         /// </summary>
         /// <param name="edgeList">A list of edges that belong to a specific face</param>
-        public void UpdateCCWHedges(List<HandleEdge> edgeList) {
+        public void UpdateCCWHedges(List<HandleEdge> edgeList)
+        {
             edgeList.Reverse();
             var enumEdges = edgeList.GetEnumerator();
             bool end = false;
@@ -204,9 +192,13 @@ namespace hsfurtwangen.dsteffen.lfg
         {
             EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
 
-            Console.WriteLine("h2 is valid before: " +
-                edge._he2._f.isValid.ToString()
-                );
+            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine("");
+                Console.WriteLine("h2 is valid before: " +
+                                  edge._he2._f.isValid.ToString()
+                    );
+            }
 
             if (edge._he1._f.isValid && edge._he2._f.isValid)
             {
@@ -224,9 +216,12 @@ namespace hsfurtwangen.dsteffen.lfg
                 Console.WriteLine(globalinf.LFGMessages.WARNING_INVALIDCASE);
             }
 
-            Console.WriteLine("h2 is valid after: " +
-                edge._he2._f.isValid.ToString()
-                );
+            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine("h2 is valid after: " +
+                                  edge._he2._f.isValid.ToString()
+                    );
+            }
         }
 
         /// <summary>
