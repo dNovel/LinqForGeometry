@@ -75,7 +75,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
         /// <summary>
         /// This updates the half-edge a face points to.
-        /// Is called directly after inserting a face and its vertices, edges to the container is done
+        /// Is called directly after inserting a face and it's vertices, edges to the container is done
         /// </summary>
         /// <param name="handleEdge">the Edge Handle "containing" the half-edge the face should point to</param>
         public void UpdateFaceToHedgePtr(HandleEdge handleEdge)
@@ -154,7 +154,7 @@ namespace hsfurtwangen.dsteffen.lfg
         }
 
         /// <summary>
-        /// Updates the "inner" half edges COUNTER clockwise so the next pointers are correct.
+        /// Updates the "outer" half edges COUNTER clockwise so the next pointers are correct.
         /// Is called after a face is inserted.
         /// </summary>
         /// <param name="edgeList">A list of edges that belong to a specific face</param>
@@ -331,27 +331,6 @@ namespace hsfurtwangen.dsteffen.lfg
         }
 
         /// <summary>
-        /// Returns the two vectors of an edge
-        /// </summary>
-        /// <param name="he">An edge to get the two vectors from</param>
-        /// <returns></returns>
-        public VertexType[] GetEdgePoints(HandleEdge he)
-        {
-            int idFirst = he._DataIndex * 2;
-            int idSec = he._DataIndex * 2 + 1;
-
-            int vert1ID = _LhedgePtrCont[idFirst]._v._DataIndex;
-            int vert2ID = _LhedgePtrCont[idSec]._v._DataIndex;
-
-            VertexType vert1 = _LvertexVal[vert1ID];
-            VertexType vert2 = _LvertexVal[vert2ID];
-
-            VertexType[] points = { vert1, vert2 };
-
-            return points;
-        }
-
-        /// <summary>
         /// Returns true if a connection already exists and fills the out parameter with a handle to the edge
         /// </summary>
         /// <param name="hv1">HandleVertex From vertex</param>
@@ -360,20 +339,33 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns></returns>
         public bool GetOrAddConnection(HandleVertex hv1, HandleVertex hv2, out HandleEdge he)
         {
-            //int indexOfEdge = _LedgePtrCont.FindIndex(edge => _LhedgePtrCont[edge._he1._DataIndex]._v._DataIndex == hv2._DataIndex && _LhedgePtrCont[edge._he2._DataIndex]._v._DataIndex == hv1._DataIndex || _LhedgePtrCont[edge._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edge._he2._DataIndex]._v._DataIndex == hv2._DataIndex);
-            //int indexOfEdge = _LedgePtrCont.FindIndex(edge => _LhedgePtrCont[edge._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edge._he2._DataIndex]._v._DataIndex == hv2._DataIndex);
             int index = -1;
-            //foreach (EdgePtrCont edgePtrCont in _LedgePtrCont.Where(edgePtrCont => _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv2._DataIndex))
-            foreach (EdgePtrCont edgePtrCont in _LedgePtrCont.Where(edgePtrCont => _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv2._DataIndex))
+            if (_LedgePtrCont.Count != 0 && _LhedgePtrCont.Count != 0)
+            {
+                index = _LedgePtrCont.FindIndex(
+                    edgePtrCont => _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv2._DataIndex
+                        ||
+                    _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv2._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv1._DataIndex
+                    );
+            }
+
+            if (index >= 0)
             {
                 if (globalinf.LFGMessages._DEBUGOUTPUT)
                 {
                     Console.WriteLine("Existing Connection found!");
                 }
-                index = hv1._DataIndex > 0 ? 0 : hv1._DataIndex;
-            }
-            if (index >= 0)
-            {
+
+                // TODO: Update the faces here? Should update the outside edge so it points to the current face i assume.
+                // Update hedge 1 or two hmmm
+                HEdgePtrCont hedgeToUpdate = _LhedgePtrCont[_LedgePtrCont[index]._he2._DataIndex];
+                if (hedgeToUpdate._f._DataIndex == -1)
+                {
+                    hedgeToUpdate._f._DataIndex = _LfacePtrCont.Count - 1;
+                    _LhedgePtrCont.RemoveAt(_LedgePtrCont[index]._he2._DataIndex);
+                    _LhedgePtrCont.Insert(_LedgePtrCont[index]._he2._DataIndex, hedgeToUpdate);
+                }
+
                 he = new HandleEdge() { _DataIndex = index };
                 return true;
             }
