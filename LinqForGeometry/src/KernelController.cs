@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -38,13 +39,31 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="path">Path to the wavefront file</param>
         public void LoadAsset(String path)
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             List<GeoFace> faceList = _objImporter.LoadAsset(path);
+
+            TimeSpan timeSpan = stopWatch.Elapsed;
+            string timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
+            Console.WriteLine("\n\n     Time needed to import the .obj file: " + timeDone);
+            stopWatch.Restart();
+
+            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine(globalinf.LFGMessages.INFO_PROCESSINGDS);
+            }
 
             // Work on the facelist and transform the data structure to the 'half-edge' data structure.
             foreach (GeoFace gf in faceList)
             {
                 AddFace(gf);
             }
+
+            stopWatch.Stop();
+            timeSpan = stopWatch.Elapsed;
+            timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
+            Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
         }
 
         /// <summary>
@@ -69,55 +88,40 @@ namespace hsfurtwangen.dsteffen.lfg
                 _GeometryContainer.AddFace(gf)
                 );
 
-            List<HandleVertex> hFaceVerts = new List<HandleVertex>();
+            List<HandleVertex> LhFaceVerts = new List<HandleVertex>();
             foreach (float3 vVal in gf._LFVertices)
             {
-                hFaceVerts.Add(
+                LhFaceVerts.Add(
                         AddVertex(vVal)
                     );
             }
 
-
-            List<HandleEdge> LtmpEdgesPerFace = new List<HandleEdge>();
-            int vertsCount = hFaceVerts.Count;
+            List<HandleEdge> LtmpEdgesForFace = new List<HandleEdge>();
+            int vertsCount = LhFaceVerts.Count;
             for (int i = 0; i < vertsCount; i++)
             {
-                HandleVertex hvFrom = hFaceVerts[i];
+                HandleVertex hvFrom = LhFaceVerts[i];
                 if (i + 1 < vertsCount)
                 {
-                    HandleVertex hvTo = hFaceVerts[i + 1];
+                    HandleVertex hvTo = LhFaceVerts[i + 1];
                     HandleEdge handleEdge = _GeometryContainer.AddEdge(hvFrom, hvTo);
-                    _LedgeHndl.Add(
-                            handleEdge
-                        );
-                    LtmpEdgesPerFace.Add(
-                            handleEdge
-                        );
+                    _LedgeHndl.Add(handleEdge);
+                    LtmpEdgesForFace.Add(handleEdge);
                 }
                 else
                 {
-                    // TODO: fix here - not add edges if they are already present?
-                    HandleVertex hvTo = hFaceVerts[0];
+                    HandleVertex hvTo = LhFaceVerts[0];
                     HandleEdge handleEdge = _GeometryContainer.AddEdge(hvFrom, hvTo);
-                    _LedgeHndl.Add(
-                               handleEdge
-                            );
-
-                    LtmpEdgesPerFace.Add(
-                            handleEdge
-                        );
+                    _LedgeHndl.Add(handleEdge);
+                    LtmpEdgesForFace.Add(handleEdge);
                 }
             }
 
             // Update the face handle, so that it points to the first half edge the face consists of.
-            _GeometryContainer.UpdateFaceToHedgePtr(LtmpEdgesPerFace[0]);
-            foreach (HandleEdge handleEdge in LtmpEdgesPerFace)
-            {
-                _GeometryContainer.IsValidEdge(handleEdge);
-            }
+            _GeometryContainer.UpdateFaceToHedgePtr(LtmpEdgesForFace[0]);
 
-            _GeometryContainer.UpdateCWHedges(LtmpEdgesPerFace);
-            _GeometryContainer.UpdateCCWHedges(LtmpEdgesPerFace);
+            // Hand over the list of edges that are used for this face. Now build up the connections.
+            _GeometryContainer.UpdateCWHedges(LtmpEdgesForFace);
         }
 
     }

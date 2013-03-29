@@ -10,6 +10,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +52,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
         /// <param name="pathToAsset">The path to the asset to be loaded in the system</param>
         private List<String> LoadFile(String pathToAsset)
         {
+            Console.WriteLine(globalinf.LFGMessages.INFO_IMPORTERDISCLAIMER);
             if (File.Exists(pathToAsset))
             {
                 StreamReader assetFile = new StreamReader(pathToAsset, System.Text.Encoding.Default);

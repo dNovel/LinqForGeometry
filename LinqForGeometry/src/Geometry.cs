@@ -52,10 +52,11 @@ namespace hsfurtwangen.dsteffen.lfg
             _LfacePtrCont = new List<FacePtrCont>();
         }
 
+
         /// <summary>
         /// Adds a Face in form of a 'FacePtrCont' to the geometry container
         /// </summary>
-        /// <param name="face"></param>
+        /// <param name="face">A GeoFace Struct</param>
         /// <returns></returns>
         public HandleFace AddFace(GeoFace face)
         {
@@ -81,17 +82,16 @@ namespace hsfurtwangen.dsteffen.lfg
         public void UpdateFaceToHedgePtr(HandleEdge handleEdge)
         {
             FacePtrCont faceCont = _LfacePtrCont.Count - 1 < 0 ? _LfacePtrCont[0] : _LfacePtrCont[_LfacePtrCont.Count - 1];
-            // TODO: This seems odd. Try looking up if the face the he1 points to is our current face, if not take a look at he2.
             HEdgePtrCont hEdgePtrCont1 = _LhedgePtrCont[_LedgePtrCont[handleEdge._DataIndex]._he1._DataIndex];
             HEdgePtrCont hEdgePtrCont2 = _LhedgePtrCont[_LedgePtrCont[handleEdge._DataIndex]._he2._DataIndex];
-
-            if (hEdgePtrCont1._f._DataIndex == _LfacePtrCont.Count - 1)
+            if (hEdgePtrCont1._f._DataIndex == (_LfacePtrCont.Count - 1))
             {
-                faceCont._h._DataIndex = _LedgePtrCont[handleEdge._DataIndex]._he1._DataIndex;
+                faceCont._h._DataIndex = hEdgePtrCont1._he._DataIndex - 1;
             }
             else
             {
-                faceCont._h._DataIndex = _LedgePtrCont[handleEdge._DataIndex]._he2._DataIndex;
+                // The first hedge does not point to this face - so you can assume it points to the neighbour face. So the second is the hedge to go with.
+                faceCont._h._DataIndex = hEdgePtrCont1._he._DataIndex;
             }
             _LfacePtrCont.RemoveAt(_LfacePtrCont.Count - 1);
             _LfacePtrCont.Add(faceCont);
@@ -105,164 +105,103 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="edgeList">A list of edges that belong to a specific face</param>
         public void UpdateCWHedges(List<HandleEdge> edgeList)
         {
-            var enumEdges = edgeList.GetEnumerator();
-            bool end = false;
-            bool firstDone = false;
-            while (!end)
+            // Proceed the loop for every edge and connect "hedge1" to the next hedge.
+            for (int i = 0; i < edgeList.Count; i++)
             {
-                if (firstDone)
+                // Test if the hedge1 or hedge2 is used. Decide by looking at their face pointers.
+                int indexhedge1 = _LedgePtrCont[edgeList[i]._DataIndex]._he1;
+                int indexhedge2 = _LedgePtrCont[edgeList[i]._DataIndex]._he2;
+                HEdgePtrCont hedgePtrCont1 = _LhedgePtrCont[indexhedge1];
+                HEdgePtrCont hedgePtrCont2 = _LhedgePtrCont[indexhedge2];
+
+                if (hedgePtrCont1._f == _LfacePtrCont.Count - 1)
                 {
-                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
-                    HEdgePtrCont hedge1 = _LhedgePtrCont[edgePtrCont._he1._DataIndex];
-                    int index = enumEdges.Current._DataIndex;
-                    if (enumEdges.MoveNext())
+                    // The face the edge1 points to is the active face - hurray! use this edge and move on.
+                    if (i + 1 < edgeList.Count)
                     {
-                        hedge1._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he1._DataIndex]._he._DataIndex - 1;
-                        // save to global list
-                        _LhedgePtrCont.RemoveAt(edgePtrCont._he1._DataIndex);
-                        _LhedgePtrCont.Insert(edgePtrCont._he1._DataIndex, hedge1);
-                        //_LedgePtrCont.RemoveAt(index);
-                        //_LedgePtrCont.Insert(index, edgePtrCont);
+                        // Just use the next hedge
+                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[i + 1]._DataIndex]._he1];
+                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
+                        {
+                            // use first
+                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont1._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge1);
+                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
+                        }
+                        else
+                        {
+                            // use second
+                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont1._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge1);
+                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
+                        }
                     }
                     else
                     {
-                        hedge1._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he1._DataIndex]._he._DataIndex - 1;
-                        // save to global list
-                        _LhedgePtrCont.RemoveAt(edgePtrCont._he1._DataIndex);
-                        _LhedgePtrCont.Insert(edgePtrCont._he1._DataIndex, hedge1);
-                        //_LedgePtrCont.RemoveAt(index);
-                        //_LedgePtrCont.Insert(index, edgePtrCont);
-                        end = true;
+                        // Connect to the first hedge in the list because the current is the last one in the face
+                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he1];
+                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
+                        {
+                            // use first
+                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont1._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge1);
+                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
+                        }
+                        else
+                        {
+                            // use second
+                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont1._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge1);
+                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
+                        }
                     }
                 }
                 else
                 {
-                    enumEdges.MoveNext();
-                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
-                    HEdgePtrCont hedge1 = _LhedgePtrCont[edgePtrCont._he1._DataIndex];
-                    int index = enumEdges.Current._DataIndex;
-                    enumEdges.MoveNext();
-                    hedge1._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he1._DataIndex]._he._DataIndex - 1;
-                    // save to global list
-                    _LhedgePtrCont.RemoveAt(edgePtrCont._he1._DataIndex);
-                    _LhedgePtrCont.Insert(edgePtrCont._he1._DataIndex, hedge1);
-                    //_LedgePtrCont.RemoveAt(index);
-                    //_LedgePtrCont.Insert(index, edgePtrCont);
-                    firstDone = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Updates the "outer" half edges COUNTER clockwise so the next pointers are correct.
-        /// Is called after a face is inserted.
-        /// </summary>
-        /// <param name="edgeList">A list of edges that belong to a specific face</param>
-        public void UpdateCCWHedges(List<HandleEdge> edgeList)
-        {
-            edgeList.Reverse();
-            var enumEdges = edgeList.GetEnumerator();
-            bool end = false;
-            bool firstDone = false;
-            while (!end)
-            {
-                if (firstDone)
-                {
-                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
-                    HEdgePtrCont hedge2 = _LhedgePtrCont[edgePtrCont._he2._DataIndex];
-                    int index = enumEdges.Current._DataIndex;
-                    if (enumEdges.MoveNext())
+                    hedgePtrCont2._f._DataIndex = _LfacePtrCont.Count - 1;
+                    // The face the edge2 points to is the current face - let's use the second one then
+                    if (i + 1 < edgeList.Count)
                     {
-                        hedge2._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he2._DataIndex]._he._DataIndex + 1;
-                        // save to global list
-                        _LhedgePtrCont.RemoveAt(edgePtrCont._he2._DataIndex);
-                        _LhedgePtrCont.Insert(edgePtrCont._he2._DataIndex, hedge2);
-                        //_LedgePtrCont.RemoveAt(index);
-                        //_LedgePtrCont.Insert(index, edgePtrCont);
+                        // Just use the next hedge
+                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[i + 1]._DataIndex]._he1];
+                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
+                        {
+                            // use first
+                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont2._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge2);
+                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
+                        }
+                        else
+                        {
+                            // use second
+                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont2._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge2);
+                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
+                        }
                     }
                     else
                     {
-                        hedge2._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he2._DataIndex]._he._DataIndex + 1;
-                        // save to global list
-                        _LhedgePtrCont.RemoveAt(edgePtrCont._he2._DataIndex);
-                        _LhedgePtrCont.Insert(edgePtrCont._he2._DataIndex, hedge2);
-                        //_LedgePtrCont.RemoveAt(index);
-                        //_LedgePtrCont.Insert(index, edgePtrCont);
-                        end = true;
+                        // Connect to the first hedge in the list because the current is the last one in the face
+                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he1];
+                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
+                        {
+                            // use first
+                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont2._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge2);
+                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
+                        }
+                        else
+                        {
+                            // use second
+                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont2._nhe._DataIndex;
+                            _LhedgePtrCont.RemoveAt(indexhedge2);
+                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
+                        }
                     }
                 }
-                else
-                {
-                    enumEdges.MoveNext();
-                    EdgePtrCont edgePtrCont = _LedgePtrCont[enumEdges.Current._DataIndex];
-                    HEdgePtrCont hedge2 = _LhedgePtrCont[edgePtrCont._he2._DataIndex];
-                    int index = enumEdges.Current._DataIndex;
-                    enumEdges.MoveNext();
-                    hedge2._nhe._DataIndex = _LhedgePtrCont[_LedgePtrCont[enumEdges.Current._DataIndex]._he2._DataIndex]._he._DataIndex + 1;
-                    // save to global list
-                    _LhedgePtrCont.RemoveAt(edgePtrCont._he2._DataIndex);
-                    _LhedgePtrCont.Insert(edgePtrCont._he2._DataIndex, hedge2);
-                    //_LedgePtrCont.RemoveAt(index);
-                    //_LedgePtrCont.Insert(index, edgePtrCont);
-                    firstDone = true;
-                }
             }
         }
 
-
-        /// <summary>
-        /// Expects a handle to an edge that belongs to a face.
-        /// If the first hedge does point to the current face but another and the second does not point to any face it will point to the current face.
-        /// </summary>
-        /// <param name="handleEdge">Handle to an edge that belongs to the current processed face</param>
-        public void IsValidEdge(HandleEdge handleEdge)
-        {
-            EdgePtrCont edge = _LedgePtrCont[handleEdge._DataIndex];
-            HEdgePtrCont hedge1 = _LhedgePtrCont[edge._he1._DataIndex];
-            HEdgePtrCont hedge2 = _LhedgePtrCont[edge._he2._DataIndex];
-
-            int indexOfhedge2 = edge._he2._DataIndex; // problem starts here
-
-            if (globalinf.LFGMessages._DEBUGOUTPUT)
-            {
-                Console.WriteLine("");
-                Console.WriteLine("h2 is valid before: " +
-                                  _LhedgePtrCont[edge._he2._DataIndex]._f.isValid.ToString()
-                    );
-            }
-
-            if (_LhedgePtrCont[edge._he1._DataIndex]._f.isValid && _LhedgePtrCont[edge._he2._DataIndex]._f.isValid)
-            {
-                // Both valid, do nothing. Should not appear Oo.
-            }
-            else if (_LhedgePtrCont[edge._he1._DataIndex]._f.isValid && !_LhedgePtrCont[edge._he2._DataIndex]._f.isValid && _LhedgePtrCont[edge._he1._DataIndex]._f._DataIndex != _LfacePtrCont.Count() - 1)
-            {
-                // One is valid, two not. So change index at two.
-                hedge2._f._DataIndex = _LfacePtrCont.Count() - 1;
-
-                _LhedgePtrCont.RemoveAt(indexOfhedge2); // crash here
-                _LhedgePtrCont.Insert(indexOfhedge2, hedge2);
-
-                edge._he2._DataIndex = indexOfhedge2;
-                if (globalinf.LFGMessages._DEBUGOUTPUT)
-                {
-                    Console.Write("Index of he2 = " + indexOfhedge2);
-                }
-                _LedgePtrCont.RemoveAt(handleEdge._DataIndex);
-                _LedgePtrCont.Insert(handleEdge._DataIndex, edge);
-            }
-            else if (!_LhedgePtrCont[edge._he1._DataIndex]._f.isValid && _LhedgePtrCont[edge._he2._DataIndex]._f.isValid)
-            {
-                Console.WriteLine(globalinf.LFGMessages.WARNING_INVALIDCASE);
-            }
-
-            if (globalinf.LFGMessages._DEBUGOUTPUT)
-            {
-                Console.WriteLine("h2 is valid after: " +
-                                  _LhedgePtrCont[edge._he2._DataIndex]._f.isValid.ToString()
-                    );
-            }
-        }
 
         /// <summary>
         /// Adds a vertex to the geometry container.
@@ -270,8 +209,9 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <param name="val">Generic data type value.</param>
         public HandleVertex AddVertex(VertexType val)
         {
-            // if does not already exists
             int index = DoesVertexExist(val);
+
+            // When vertex does not exist - insert it
             if (index == -1)
             {
                 _LvertexVal.Add(val);
@@ -296,15 +236,29 @@ namespace hsfurtwangen.dsteffen.lfg
             }
         }
 
+
+        /// <summary>
+        /// Returns the data corresponding to a vertex handle
+        /// </summary>
+        /// <param name="hv">HandleVertex with ID the data is wanted to be retrieved</param>
+        /// <returns></returns>
+        public VertexType GetVertexData(HandleVertex hv)
+        {
+            return _LvertexVal[hv._DataIndex];
+        }
+
+
         /// <summary>
         /// Checks if a vertex already exists in the value list
         /// </summary>
+        /// <param name="v">VertexType parameter (e.g. float3)</param>
         /// <returns>boolean, true if vertex does alreadyexist</returns>
         private int DoesVertexExist(VertexType v)
         {
             int index = _LvertexVal.FindIndex(vert => vert.Equals(v));
             return index >= 0 ? index : -1;
         }
+
 
         /// <summary>
         /// This method adds a edge to the container. The edge is 'drawn' between two vertices
@@ -320,15 +274,6 @@ namespace hsfurtwangen.dsteffen.lfg
             return new HandleEdge() { _DataIndex = hndlEdge._DataIndex };
         }
 
-        /// <summary>
-        /// Returns the data corresponding to a vertex handle
-        /// </summary>
-        /// <param name="hv">HandleVertex with ID the data is wanted to be retrieved</param>
-        /// <returns></returns>
-        public VertexType GetVertexData(HandleVertex hv)
-        {
-            return _LvertexVal[hv._DataIndex];
-        }
 
         /// <summary>
         /// Returns true if a connection already exists and fills the out parameter with a handle to the edge
@@ -348,33 +293,26 @@ namespace hsfurtwangen.dsteffen.lfg
                     _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv2._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv1._DataIndex
                     );
             }
-
             if (index >= 0)
             {
                 if (globalinf.LFGMessages._DEBUGOUTPUT)
                 {
-                    Console.WriteLine("Existing Connection found!");
+                    Console.WriteLine("     Existing edge found - Not creating a new one.");
                 }
-
-                // TODO: Update the faces here? Should update the outside edge so it points to the current face i assume.
-                // Update hedge 1 or two hmmm
-                HEdgePtrCont hedgeToUpdate = _LhedgePtrCont[_LedgePtrCont[index]._he2._DataIndex];
-                if (hedgeToUpdate._f._DataIndex == -1)
-                {
-                    hedgeToUpdate._f._DataIndex = _LfacePtrCont.Count - 1;
-                    _LhedgePtrCont.RemoveAt(_LedgePtrCont[index]._he2._DataIndex);
-                    _LhedgePtrCont.Insert(_LedgePtrCont[index]._he2._DataIndex, hedgeToUpdate);
-                }
-
                 he = new HandleEdge() { _DataIndex = index };
                 return true;
             }
             else
             {
+                if (globalinf.LFGMessages._DEBUGOUTPUT)
+                {
+                    Console.WriteLine("     Edge not found - creating new one.");
+                }
                 he._DataIndex = CreateConnection(hv1, hv2)._DataIndex;
                 return false;
             }
         }
+
 
         /// <summary>
         /// Establishes a connection between two vertices.
@@ -383,8 +321,8 @@ namespace hsfurtwangen.dsteffen.lfg
         /// 3) Creates an edge pointer container and adds it to the geo container.
         /// 4) returns a handle to an edge
         /// </summary>
-        /// <param name="hv1"></param>
-        /// <param name="hv2"></param>
+        /// <param name="hv1">HandleVertex from which vertex</param>
+        /// <param name="hv2">Handlevertex to which vertex</param>
         public HandleEdge CreateConnection(HandleVertex hvFrom, HandleVertex hvTo)
         {
             HEdgePtrCont hedge1 = new HEdgePtrCont();
@@ -402,6 +340,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
             _LhedgePtrCont.Add(hedge1);
             _LhedgePtrCont.Add(hedge2);
+
             _LedgePtrCont.Add(
                 new EdgePtrCont()
                 {
@@ -427,9 +366,8 @@ namespace hsfurtwangen.dsteffen.lfg
                 _LvertexPtrCont.Insert(hvTo._DataIndex, vertTo);
             }
 
-            return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1 };
+            return new HandleEdge() { _DataIndex = _LedgePtrCont.Count - 1 };
+            //return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1 };
         }
-
     }
 }
-

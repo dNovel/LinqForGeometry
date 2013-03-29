@@ -26,7 +26,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
         static void Main(string[] args)
         {
-            Stopwatch stopWatch = new Stopwatch();
+            Stopwatch stopWatch = new Stopwatch();  
             _lfgSys = new KernelController();
             stopWatch.Start();
             //_lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/plane_square_1.obj");
@@ -35,7 +35,7 @@ namespace hsfurtwangen.dsteffen.lfg
             stopWatch.Stop();
             TimeSpan timeSpan = stopWatch.Elapsed;
             string timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
-            Console.WriteLine("Time needed to import the object: " + timeDone);
+            Console.WriteLine("\n\n     Time needed to complete the whole process: " + timeDone + "\n\n");
 
 
             // do something interesting ...
