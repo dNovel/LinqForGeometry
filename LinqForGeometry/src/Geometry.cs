@@ -30,6 +30,8 @@ namespace hsfurtwangen.dsteffen.lfg
     public class Geometry<VertexType, FaceType, EdgeType>
     {
         // Vars
+        private KernelController _KernelController;
+
         private List<VertexType> _LvertexVal;
         private List<EdgeType> _LedgeVal;
 
@@ -42,8 +44,9 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <summary>
         /// Initializes a new instance of the <see cref="hsfurtwangen.dsteffen.lfg.Geometry"/> class.
         /// </summary>
-        public Geometry()
-        {
+        public Geometry(KernelController kc) {
+            _KernelController = kc;
+
             _LvertexVal = new List<VertexType>();
 
             _LvertexPtrCont = new List<VertexPtrCont>();
@@ -369,5 +372,18 @@ namespace hsfurtwangen.dsteffen.lfg
             return new HandleEdge() { _DataIndex = _LedgePtrCont.Count - 1 };
             //return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1 };
         }
+
+
+        /// <summary>
+        /// Circulate around a given vertex and enumerate all vertices connected by a direct edge.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
+        /// <returns>An Enumerable of VertexHandles to be used in loops, etc.</returns>
+        public IEnumerable<HandleVertex> EnStarVertexVertex(HandleVertex hv) {
+            IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
+            return EnhEdgePtr.Select(val => _LhedgePtrCont[val._he]._v);
+        }
+
+
     }
 }

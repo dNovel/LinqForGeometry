@@ -16,7 +16,11 @@ namespace hsfurtwangen.dsteffen.lfg.structs.ptrcontainer
     /// <summary>
     /// This is a half-edge 'Pointer Container'.
     /// The Reference to the next 'object' are stored in here depending on the 'half-edge data strucute'
-    /// Every Vertex has a reference to one of his outgoing 'Half-Edges'
+    /// Every half-edge has the following references:
+    /// a reference to it's direct neighbour half-edge
+    /// a reference to the next half-edge in clock wise order.
+    /// a reference to a vertex the half-edge points to.
+    /// a reference to a face the half-edge belongs to.
     /// </summary>
     internal struct HEdgePtrCont
     {

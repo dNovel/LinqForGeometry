@@ -11,27 +11,37 @@ using hsfurtwangen.dsteffen.lfg.Importer;
 
 namespace hsfurtwangen.dsteffen.lfg
 {
-    class KernelController
+    public class KernelController
     {
-        WavefrontImporter<float3> _objImporter;
-        List<GeoFace> _GeoFaces;
+        private WavefrontImporter<float3> _objImporter;
+        private List<GeoFace> _GeoFaces;
 
-        Geometry<float3, GeoFace, float3> _GeometryContainer;
+        private Geometry<float3, GeoFace, float3> _GeometryContainer;
 
-        List<HandleVertex> _LverticeHndl;
-        List<HandleEdge> _LedgeHndl;
-        List<HandleFace> _LfaceHndl;
 
+        /// <summary>
+        /// These lists are public so the user can retrieve his handles and work with them.
+        /// </summary>
+        public List<HandleVertex> _LverticeHndl;
+        public List<HandleEdge> _LedgeHndl;
+        public List<HandleFace> _LfaceHndl;
+
+
+        /// <summary>
+        /// Constructor for the KernelController class.
+        /// </summary>
         public KernelController()
         {
             _objImporter = new WavefrontImporter<float3>();
             _GeoFaces = new List<GeoFace>();
 
-            _GeometryContainer = new Geometry<float3, GeoFace, float3>();
             _LverticeHndl = new List<HandleVertex>();
             _LedgeHndl = new List<HandleEdge>();
             _LfaceHndl = new List<HandleFace>();
+
+            _GeometryContainer = new Geometry<float3, GeoFace, float3>(this);
         }
+
 
         /// <summary>
         /// Loads an asset specified by the path
@@ -65,6 +75,7 @@ namespace hsfurtwangen.dsteffen.lfg
             timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
         }
+
 
         /// <summary>
         /// Adds a vertex to the geometry container. Can then be controlled by the kernel
@@ -124,5 +135,15 @@ namespace hsfurtwangen.dsteffen.lfg
             _GeometryContainer.UpdateCWHedges(LtmpEdgesForFace);
         }
 
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object
+        /// </summary>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleVertex</returns>
+        public IEnumerable<HandleVertex> StarIterateVertex(HandleVertex hv)
+        {
+            return _GeometryContainer.EnStarVertexVertex(hv);
+        }
     }
 }
