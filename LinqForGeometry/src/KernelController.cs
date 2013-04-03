@@ -139,7 +139,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <summary>
         /// Serves as an enumerable retriever from the geometry object
         /// </summary>
-        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelController's vertex handle list to ensure it's correct.</param>
         /// <returns>IEnumerable of type HandleVertex</returns>
         public IEnumerable<HandleVertex> StarIterateVertex(HandleVertex hv)
         {
@@ -150,7 +150,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Serves as an enumerable retriever from the geometry object.
         /// Returns an enumerable of INCOMING halfedge handles.
         /// </summary>
-        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelController's vertex handle list to ensure it's correct.</param>
         /// <returns>IEnumerable of type HandleHalfEdge</returns>
         public IEnumerable<HandleHalfEdge> StarVertexIncomingHalfEdge(HandleVertex hv)
         {
@@ -162,7 +162,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Serves as an enumerable retriever from the geometry object.
         /// Returns an enumerable of OUTGOING halfedge handles.
         /// </summary>
-        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelController's vertex handle list to ensure it's correct.</param>
         /// <returns>IEnumerable of type HandleHalfEdge</returns>
         public IEnumerable<HandleHalfEdge> StarVertexOutgoingHalfEdge(HandleVertex hv)
         {
@@ -174,11 +174,57 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Serves as an enumerable retriever from the geometry object
         /// Returns an enumerable of adjacent face handles.
         /// </summary>
-        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
-        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelController's vertex handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleFace</returns>
         public IEnumerable<HandleFace> VertexAdjacentFaces(HandleVertex hv)
         {
             return _GeometryContainer.EnVertexAdjacentFaces(hv);
+        }
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding halfedges specific to a center face.
+        /// </summary>
+        /// <param name="hf">A handle to a face, should be selected from the KernelController's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleHalfEdge> FaceSurroundingHalfEdges(HandleFace hf)
+        {
+            return _GeometryContainer.EnFaceHalfEdges(hf);
+        }
+
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding vertices specific to a center face.
+        /// </summary>
+        /// <param name="hf">A handle to a face, should be selected from the KernelController's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleVertex</returns>
+        public IEnumerable<HandleVertex> FaceSurroundingVertices(HandleFace hf)
+        {
+            return _GeometryContainer.EnFaceVertices(hf);
+        }
+
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding vertices specific to a center face.
+        /// </summary>
+        /// <param name="hf">A handle to a face, should be selected from the KernelController's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleEdge</returns>
+        public IEnumerable<HandleEdge> FaceSurroundingEdges(HandleFace hf)
+        {
+            return _GeometryContainer.EnFaceEdges(hf);
+        }
+
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding faces specific to a center face.
+        /// </summary>
+        /// <param name="hf">A handle to a face, should be selected from the KernelController's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleFace</returns>
+        public IEnumerable<HandleFace> FaceSurroundingFaces(HandleFace hf) {
+            return _GeometryContainer.EnFaceFaces(hf);
         }
     }
 }

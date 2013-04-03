@@ -38,7 +38,41 @@ namespace hsfurtwangen.dsteffen.lfg
             string timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to complete the whole process: " + timeDone + "\n\n");
 
+            DoSomeIteratorsOnVertices();
+            DoSomeIteratorsOnFaces();
 
+        }
+
+        // http://stackoverflow.com/questions/8582344/does-c-sharp-have-isnullorempty-for-list-ienumerable for testing only
+        /// <summary>
+        /// Determines whether the collection is null or contains no elements.
+        /// </summary>
+        /// <typeparam name="T">The IEnumerable type.</typeparam>
+        /// <param name="enumerable">The enumerable, which may be null or empty.</param>
+        /// <returns>
+        ///     <c>true</c> if the IEnumerable is null or empty; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsNullOrEmpty<T>(IEnumerable<T> enumerable)
+        {
+            if (enumerable == null)
+            {
+                return true;
+            }
+            /* If this is a list, use the Count property for efficiency. 
+             * The Count property is O(1) while IEnumerable.Count() is O(N). */
+            var collection = enumerable as ICollection<T>;
+            if (collection != null)
+            {
+                return collection.Count < 1;
+            }
+            return !enumerable.Any();
+        }
+
+        /// <summary>
+        /// Perform some iterators on vertex based stuff ...
+        /// </summary>
+        private static void DoSomeIteratorsOnVertices()
+        {
             // Iterate in a star over one given vertex and print out to which other vertices it is connected.
             // Because its fun do it for every vertex in the geometry
             for (int i = 0; i < _lfgSys._LverticeHndl.Count; i++)
@@ -97,30 +131,67 @@ namespace hsfurtwangen.dsteffen.lfg
             }
         }
 
-        // http://stackoverflow.com/questions/8582344/does-c-sharp-have-isnullorempty-for-list-ienumerable for testing only
         /// <summary>
-        /// Determines whether the collection is null or contains no elements.
+        /// Perform some iterators on face based stuff ... 
         /// </summary>
-        /// <typeparam name="T">The IEnumerable type.</typeparam>
-        /// <param name="enumerable">The enumerable, which may be null or empty.</param>
-        /// <returns>
-        ///     <c>true</c> if the IEnumerable is null or empty; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsNullOrEmpty<T>(IEnumerable<T> enumerable)
+        private static void DoSomeIteratorsOnFaces()
         {
-            if (enumerable == null)
+            for (int i = 0; i < _lfgSys._LfaceHndl.Count; i++)
             {
-                return true;
-            }
-            /* If this is a list, use the Count property for efficiency. 
-             * The Count property is O(1) while IEnumerable.Count() is O(N). */
-            var collection = enumerable as ICollection<T>;
-            if (collection != null)
-            {
-                return collection.Count < 1;
-            }
-            return !enumerable.Any();
-        }
+                if (i < _lfgSys._LverticeHndl.Count)
+                {
 
+                    IEnumerable<HandleVertex> enhandlevert = _lfgSys.FaceSurroundingVertices(new HandleFace() {_DataIndex = i});
+                    IEnumerable<HandleHalfEdge> enhandlehedges = _lfgSys.FaceSurroundingHalfEdges(new HandleFace() {_DataIndex = i});
+                    IEnumerable<HandleEdge> enhandleedges = _lfgSys.FaceSurroundingEdges(new HandleFace() { _DataIndex = i });
+                    IEnumerable<HandleFace> enhandlefaces = _lfgSys.FaceSurroundingFaces(new HandleFace() { _DataIndex = i });
+
+
+                    if (!IsNullOrEmpty(enhandlevert))
+                    {
+                        Console.Write("Face " + i + " is surrounded by VERTICES: ");
+                        foreach (HandleVertex verthandle in enhandlevert)
+                        {
+                            Console.Write(verthandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
+
+                    if (!IsNullOrEmpty(enhandlehedges))
+                    {
+                        Console.Write("Face " + i + " is surrounded by HALFEDGES: ");
+                        foreach (HandleHalfEdge hedgehandle in enhandlehedges)
+                        {
+                            Console.Write(hedgehandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
+
+                    if (!IsNullOrEmpty(enhandleedges))
+                    {
+                        Console.Write("Face " + i + " is surrounded by EDGES: ");
+                        foreach (HandleEdge edgehandle in enhandleedges)
+                        {
+                            Console.Write(edgehandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
+
+                    if (!IsNullOrEmpty(enhandlefaces))
+                    {
+                        Console.Write("Face " + i + " is surrounded by FACES: ");
+                        foreach (HandleFace facehandle in enhandlefaces)
+                        {
+                            Console.Write(facehandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
+                }
+            }
+        }
     }
 }

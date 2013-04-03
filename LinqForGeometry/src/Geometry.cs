@@ -377,7 +377,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
         /// <summary>
         /// Iterator.
-        /// This is a private method that retrieves all halfedge pointer containers pointing to a vertex
+        /// This is a private method that retrieves all halfedge pointer containers pointing to a vertex.
         /// </summary>
         /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
         /// <returns>An Enumerable of HalfEdgePointerContainers to be used in other iterators.</returns>
@@ -440,6 +440,77 @@ namespace hsfurtwangen.dsteffen.lfg
             //IEnumerable<HEdgePtrCont> enIncomingHedges = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
             //IEnumerable<HandleFace> enHandleFacesAdjacentInc = enIncomingHedges.Select(val => val._f);
             //return enHandleFacesAdjacentInc;
+        }
+
+
+        /// <summary>
+        /// Iterator.
+        /// This is a private method that retrieves all halfedge pointer containers which belong to a specific face handle.
+        /// </summary>
+        /// <param name="hf">A handle to the center face.</param>
+        /// <returns>An Enumerable of haldedge pointer containers.</returns>
+        private IEnumerable<HEdgePtrCont> FaceCenterHalfEdges(HandleFace hf)
+        {
+            return _LhedgePtrCont.FindAll(hedges => hedges._f == hf);
+        }
+
+
+        /// <summary>
+        /// Converts a half edge handle to an edge handle.
+        /// </summary>
+        /// <param name="hh">A halfedge handle to convert.</param>
+        /// <returns>HandleEdge. A new Handle to an already existing edge.</returns>
+        private HandleEdge HalfEdgeHandleToEdgeHandle(HandleHalfEdge hh)
+        {
+            return new HandleEdge() { _DataIndex = hh / 2 };
+        }
+
+
+        /// <summary>
+        /// Iterator.
+        /// Circulate around all the halfedges of a given face handle.
+        /// </summary>
+        /// <param name="hf">A handle to a face used as the 'center' face.</param>
+        /// <returns>An Enumerable of halfedge handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleHalfEdge> EnFaceHalfEdges(HandleFace hf)
+        {
+            return FaceCenterHalfEdges(hf).Select(val => _LhedgePtrCont[val._he]._he);
+        }
+
+
+        /// <summary>
+        /// Iterator.
+        /// Circulate around all the vertice of a given face handle.
+        /// </summary>
+        /// <param name="hf">A handle to a face used as the 'center' face.</param>
+        /// <returns>An Enumerable of vertex handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleVertex> EnFaceVertices(HandleFace hf)
+        {
+            return FaceCenterHalfEdges(hf).Select(val => val._v);
+        }
+
+
+        /// <summary>
+        /// Iterator.
+        /// Circulate around all the edges of a given face handle.
+        /// </summary>
+        /// <param name="hf">A handle to a face used as the 'center' face.</param>
+        /// <returns>An Enumerable of edge handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleEdge> EnFaceEdges(HandleFace hf)
+        {
+            return EnFaceHalfEdges(hf).Select(val => HalfEdgeHandleToEdgeHandle(val));
+        }
+
+
+        /// <summary>
+        /// Iterator.
+        /// Circulate around all the faces surrounding a specific face.
+        /// </summary>
+        /// <param name="hf">A handle to a face used as the 'center' face.</param>
+        /// <returns>An Enumerable of face handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleFace> EnFaceFaces(HandleFace hf)
+        {
+            return FaceCenterHalfEdges(hf).Select(val => _LhedgePtrCont[val._he]._f);
         }
 
     }
