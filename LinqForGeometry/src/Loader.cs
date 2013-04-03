@@ -46,6 +46,10 @@ namespace hsfurtwangen.dsteffen.lfg
                 if (i < _lfgSys._LverticeHndl.Count)
                 {
                     IEnumerable<HandleVertex> enhandlevert = _lfgSys.StarIterateVertex(new HandleVertex() { _DataIndex = i });
+                    IEnumerable<HandleHalfEdge> enhandlehedgeInc = _lfgSys.StarVertexIncomingHalfEdge(new HandleVertex() { _DataIndex = i });
+                    IEnumerable<HandleHalfEdge> enhandlehedgeOut = _lfgSys.StarVertexOutgoingHalfEdge(new HandleVertex() { _DataIndex = i });
+                    IEnumerable<HandleFace> enhandleAdjacentFaces = _lfgSys.VertexAdjacentFaces(new HandleVertex() { _DataIndex = i });
+
                     if (!IsNullOrEmpty(enhandlevert))
                     {
                         Console.Write("Vertex " + i + " is connected to verts: ");
@@ -55,6 +59,40 @@ namespace hsfurtwangen.dsteffen.lfg
                         }
                         Console.Write("\n");
                     }
+
+
+                    if (!IsNullOrEmpty(enhandlehedgeInc))
+                    {
+                        Console.Write("Vertex " + i + " is connected to INCOMING halfedge: ");
+                        foreach (HandleHalfEdge hedgehandle in enhandlehedgeInc)
+                        {
+                            Console.Write(hedgehandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
+
+                    if (!IsNullOrEmpty(enhandlehedgeOut))
+                    {
+                        Console.Write("Vertex " + i + " is connected to OUTGOING halfedge: ");
+                        foreach (HandleHalfEdge hedgehandle in enhandlehedgeOut)
+                        {
+                            Console.Write(hedgehandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
+
+                    if (!IsNullOrEmpty(enhandleAdjacentFaces))
+                    {
+                        Console.Write("Vertex " + i + " is connected to ADJACENT face: ");
+                        foreach (HandleFace facehandle in enhandleAdjacentFaces)
+                        {
+                            Console.Write(facehandle._DataIndex + " ");
+                        }
+                        Console.Write("\n");
+                    }
+
                 }
             }
         }

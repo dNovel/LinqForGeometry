@@ -145,5 +145,40 @@ namespace hsfurtwangen.dsteffen.lfg
         {
             return _GeometryContainer.EnStarVertexVertex(hv);
         }
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of INCOMING halfedge handles.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleHalfEdge> StarVertexIncomingHalfEdge(HandleVertex hv)
+        {
+            return _GeometryContainer.EnStarVertexIncomingHalfEdge(hv);
+        }
+
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of OUTGOING halfedge handles.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleHalfEdge> StarVertexOutgoingHalfEdge(HandleVertex hv)
+        {
+            return _GeometryContainer.EnStarVertexOutgoingHalfEdge(hv);
+        }
+
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object
+        /// Returns an enumerable of adjacent face handles.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex, should be selected from the KernelControllers vertex handle list to be ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleFace> VertexAdjacentFaces(HandleVertex hv)
+        {
+            return _GeometryContainer.EnVertexAdjacentFaces(hv);
+        }
     }
 }

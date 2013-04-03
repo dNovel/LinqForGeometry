@@ -44,7 +44,8 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <summary>
         /// Initializes a new instance of the <see cref="hsfurtwangen.dsteffen.lfg.Geometry"/> class.
         /// </summary>
-        public Geometry(KernelController kc) {
+        public Geometry(KernelController kc)
+        {
             _KernelController = kc;
 
             _LvertexVal = new List<VertexType>();
@@ -379,11 +380,49 @@ namespace hsfurtwangen.dsteffen.lfg
         /// </summary>
         /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
         /// <returns>An Enumerable of VertexHandles to be used in loops, etc.</returns>
-        public IEnumerable<HandleVertex> EnStarVertexVertex(HandleVertex hv) {
+        public IEnumerable<HandleVertex> EnStarVertexVertex(HandleVertex hv)
+        {
             IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
             return EnhEdgePtr.Select(val => _LhedgePtrCont[val._he]._v);
         }
 
+
+        /// <summary>
+        /// Circulate around a given vertex and enumerate all incoming halfedges.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
+        /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleHalfEdge> EnStarVertexIncomingHalfEdge(HandleVertex hv)
+        {
+            IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
+            return EnhEdgePtr.Select(val => _LhedgePtrCont[_LhedgePtrCont[val._he]._he]._he);
+        }
+
+
+        /// <summary>
+        /// Circulate around a given vertex and enumerate all outgoing halfedges.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
+        /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleHalfEdge> EnStarVertexOutgoingHalfEdge(HandleVertex hv)
+        {
+            IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
+            return EnhEdgePtr.Select(val => _LhedgePtrCont[val._he]._he);
+        }
+
+
+        /// <summary>
+        /// Circulate around a given vertex and enumerate all faces adjacent to the center vertex
+        /// </summary>
+        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
+        /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
+        public IEnumerable<HandleFace> EnVertexAdjacentFaces(HandleVertex hv)
+        {
+            IEnumerable<HEdgePtrCont> enIncomingHedges = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
+
+            IEnumerable<HandleFace> enHandleFacesAdjacentInc = enIncomingHedges.Select(val => val._f);
+            return enHandleFacesAdjacentInc;
+        }
 
     }
 }
