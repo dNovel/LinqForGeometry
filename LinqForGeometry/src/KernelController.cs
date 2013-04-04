@@ -84,7 +84,15 @@ namespace hsfurtwangen.dsteffen.lfg
         public HandleVertex AddVertex(float3 val)
         {
             HandleVertex hvToAdd = _GeometryContainer.AddVertex(val);
-            _LverticeHndl.Add(hvToAdd);
+
+            if (!_LverticeHndl.Contains(hvToAdd))
+            {
+                _LverticeHndl.Add(hvToAdd);
+            }
+            else
+            {
+                Console.WriteLine("$$$ Vertex has been already inserted!");
+            }
             return hvToAdd;
         }
 
@@ -116,14 +124,28 @@ namespace hsfurtwangen.dsteffen.lfg
                 {
                     HandleVertex hvTo = LhFaceVerts[i + 1];
                     HandleEdge handleEdge = _GeometryContainer.AddEdge(hvFrom, hvTo);
-                    _LedgeHndl.Add(handleEdge);
+                    if (!_LedgeHndl.Contains(handleEdge))
+                    {
+                        _LedgeHndl.Add(handleEdge);
+                    }
+                    else
+                    {
+                        Console.WriteLine("$$$ Edge has been already inserted!");
+                    }
                     LtmpEdgesForFace.Add(handleEdge);
                 }
                 else
                 {
                     HandleVertex hvTo = LhFaceVerts[0];
                     HandleEdge handleEdge = _GeometryContainer.AddEdge(hvFrom, hvTo);
-                    _LedgeHndl.Add(handleEdge);
+                    if (!_LedgeHndl.Contains(handleEdge))
+                    {
+                        _LedgeHndl.Add(handleEdge);
+                    }
+                    else
+                    {
+                        Console.WriteLine("$$$ Edge has been already inserted!");
+                    }
                     LtmpEdgesForFace.Add(handleEdge);
                 }
             }
@@ -223,8 +245,44 @@ namespace hsfurtwangen.dsteffen.lfg
         /// </summary>
         /// <param name="hf">A handle to a face, should be selected from the KernelController's face handle list to ensure it's correct.</param>
         /// <returns>IEnumerable of type HandleFace</returns>
-        public IEnumerable<HandleFace> FaceSurroundingFaces(HandleFace hf) {
+        public IEnumerable<HandleFace> FaceSurroundingFaces(HandleFace hf)
+        {
             return _GeometryContainer.EnFaceFaces(hf);
         }
+
+
+
+        /* Standard Circle Iterators over all elemets of the geometry object */
+
+        /// <summary>
+        /// Returns an enumerable of all vertices handles in the geometry structure.
+        /// </summary>
+        /// <returns>IEnumerable of type HandleVertex</returns>
+        public IEnumerable<HandleVertex> EnAllVertices()
+        {
+            return _LverticeHndl.AsEnumerable();
+        }
+
+
+        /// <summary>
+        /// Returns an enumerable of all edge handles in the geometry structure.
+        /// </summary>
+        /// <returns>IEnumerable of type HandleEdge</returns>
+        public IEnumerable<HandleEdge> EnAllEdges()
+        {
+            return _LedgeHndl.AsEnumerable();
+        }
+
+
+        /// <summary>
+        /// Returns an enumerable of all face handles in the geometry structure.
+        /// </summary>
+        /// <returns>IEnumerable of type HandleFace</returns>
+        public IEnumerable<HandleFace> EnAllFaces()
+        {
+            return _LfaceHndl.AsEnumerable();
+        }
+
+
     }
 }
