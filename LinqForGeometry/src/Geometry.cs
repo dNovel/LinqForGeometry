@@ -1,563 +1,342 @@
-// /*
-// 	Author: Dominik Steffen
-// 	E-Mail: dominik.steffen@hs-furtwangen.de, dominik.steffen@gmail.com
-// 	Bachlor Thesis Summer Semester 2013
-// 	'Computer Science in Media'
-// 	Project: LinqForGeometry
-// 	Professors:
-// 	Mr. Prof. C. Müller
-// 	Mr. Prof. W. Walter
-// */
-
-
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using Fusee.Math;
+using System.Text;
 
-using hsfurtwangen.dsteffen.lfg.structs.ptrcontainer;
+using Fusee.Math;
+using hsfurtwangen.dsteffen.lfg;
 using hsfurtwangen.dsteffen.lfg.structs.handles;
 using hsfurtwangen.dsteffen.lfg.Importer;
 
 namespace hsfurtwangen.dsteffen.lfg
 {
-
-    /// <summary>
-    /// This is a container for the geometry of one mesh.
-    /// So if a model is imported, it will be represented in the program as an object of this container class.
-    /// </summary>
     public class Geometry
     {
-        // Vars
-        private KernelController _KernelController;
+        private WavefrontImporter<float3> _objImporter;
+        private List<GeoFace> _GeoFaces;
 
-        private List<float3> _LvertexVal;
-
-        private List<VertexPtrCont> _LvertexPtrCont;
-        private List<HEdgePtrCont> _LhedgePtrCont;
-        private List<EdgePtrCont> _LedgePtrCont;
-        private List<FacePtrCont> _LfacePtrCont;
-
-        private List<float3> _LfaceNormals;
+        private GeometryData _GeometryContainer;
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="hsfurtwangen.dsteffen.lfg.Geometry"/> class.
+        /// These lists are public so the user can retrieve his handles and work with them.
         /// </summary>
-        public Geometry(KernelController kc)
+        public List<HandleVertex> _LverticeHndl;
+        public List<HandleEdge> _LedgeHndl;
+        public List<HandleFace> _LfaceHndl;
+
+        /// <summary>
+        /// Constructor for the GeometryData class.
+        /// </summary>
+        public Geometry()
         {
-            _KernelController = kc;
+            _objImporter = new WavefrontImporter<float3>();
+            _GeoFaces = new List<GeoFace>();
 
-            _LvertexVal = new List<float3>();
+            _LverticeHndl = new List<HandleVertex>();
+            _LedgeHndl = new List<HandleEdge>();
+            _LfaceHndl = new List<HandleFace>();
 
-            _LvertexPtrCont = new List<VertexPtrCont>();
-            _LhedgePtrCont = new List<HEdgePtrCont>();
-            _LedgePtrCont = new List<EdgePtrCont>();
-            _LfacePtrCont = new List<FacePtrCont>();
-
-            _LfaceNormals = new List<float3>();
+            _GeometryContainer = new GeometryData(this);
         }
 
 
         /// <summary>
-        /// Adds a Face in form of a 'FacePtrCont' to the geometry container
+        /// Loads an asset specified by the path
         /// </summary>
-        /// <param name="face">A GeoFace Struct</param>
-        /// <returns></returns>
-        public HandleFace AddFace(GeoFace face)
+        /// <param name="path">Path to the wavefront file</param>
+        public void LoadAsset(String path)
         {
-            _LfacePtrCont.Add(
-                new FacePtrCont()
-                {
-                    _h = new HandleHalfEdge()
-                    {
-                        _DataIndex = -1
-                    }
-                }
-            );
-            HandleFace fHndl = new HandleFace();
-            fHndl._DataIndex = _LfacePtrCont.Count - 1;
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
-            return fHndl;
-        }
+            List<GeoFace> faceList = _objImporter.LoadAsset(path);
 
-
-        /// <summary>
-        /// This method adds a face normal vector to a list.
-        /// The vector is calculated for the face which handle the method expects.
-        /// Normally should not be called by the user. The system is calling it once a face has been inserted to the geometry object.
-        /// </summary>
-        /// <param name="handleFace">Handle to a face</param>
-        public void AddFaceNormal(HandleFace handleFace)
-        {
-            IEnumerable<HandleVertex> enVerts = EnFaceVertices(handleFace);
-            var Lverts = enVerts.Select(handleVertex => _LvertexVal[handleVertex]).ToList();
-
-            float3 p0 = Lverts[0];
-            float3 p1 = Lverts[1];
-            float3 p2 = Lverts[2];
-
-            float3 v1 = float3.Subtract(p1, p0);
-            float3 v2 = float3.Subtract(p2, p0);
-
-            float3 n = float3.Cross(v1, v2);
-            _LfaceNormals.Add(
-                float3.Normalize(n)
-                );
-        }
-
-        /// <summary>
-        /// This method calculates a vertex normal. Staring Point is a handle to a vertex.
-        /// It will iterate over all faces adjacent to the vertex the handle points to.
-        /// </summary>
-        /// <param name="handleVertex">A handle to a vertex</param>
-        /// <returns>float3 value which is the normal vektor for the vertex</returns>
-        public float3 CalcVertexNormal(HandleVertex handleVertex)
-        {
-            var adjacentfaceNormals = EnVertexAdjacentFaces(handleVertex).Select(face => _LfaceNormals[face]).ToList();
-            int adjacentfaceCount = adjacentfaceNormals.Count;
-            var sumNormals = new float3();
-            sumNormals = adjacentfaceNormals.Aggregate(sumNormals, (current, adjacentfaceNormal) => float3.Add(current, adjacentfaceNormal));
-            sumNormals = float3.Divide(sumNormals, adjacentfaceCount);
-
-            return float3.Normalize(sumNormals);
-        }
-
-        /// <summary>
-        /// This updates the half-edge a face points to.
-        /// Is called directly after inserting a face and it's vertices, edges to the container is done
-        /// </summary>
-        /// <param name="handleEdge">the Edge Handle "containing" the half-edge the face should point to</param>
-        public void UpdateFaceToHedgePtr(HandleEdge handleEdge)
-        {
-            FacePtrCont faceCont = _LfacePtrCont.Count - 1 < 0 ? _LfacePtrCont[0] : _LfacePtrCont[_LfacePtrCont.Count - 1];
-            HEdgePtrCont hEdgePtrCont1 = _LhedgePtrCont[_LedgePtrCont[handleEdge._DataIndex]._he1._DataIndex];
-            HEdgePtrCont hEdgePtrCont2 = _LhedgePtrCont[_LedgePtrCont[handleEdge._DataIndex]._he2._DataIndex];
-            if (hEdgePtrCont1._f._DataIndex == (_LfacePtrCont.Count - 1))
+            // Convert a x-poly model to a triangular poly model because FUSEE only can handle triangular polys for now.
+            if (globalinf.LFGMessages.FLAG_FUSEE_TRIANGLES)
             {
-                faceCont._h._DataIndex = hEdgePtrCont1._he._DataIndex - 1;
+                List<GeoFace> newFaces = ConvertFacesToTriangular(faceList);
+                faceList.Clear();
+                faceList = newFaces;
+            }
+
+            TimeSpan timeSpan = stopWatch.Elapsed;
+            string timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
+            Console.WriteLine("\n\n     Time needed to import the .obj file: " + timeDone);
+            stopWatch.Restart();
+
+            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine(globalinf.LFGMessages.INFO_PROCESSINGDS);
+            }
+
+            // Work on the facelist and transform the data structure to the 'half-edge' data structure.
+            foreach (GeoFace gf in faceList)
+            {
+                AddFace(gf);
+            }
+
+            stopWatch.Stop();
+            timeSpan = stopWatch.Elapsed;
+            timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
+            Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
+
+            // TODO: Calc the vertex normals.
+            var LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
+            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine("Vertex Normals: ");
+                foreach (float3 lVertexNormal in LVertexNormals)
+                {
+                    Console.WriteLine("     $" + lVertexNormal.ToString());
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// This method converts a quadrangular polygon mesh to a triangular polygon mesh
+        /// </summary>
+        /// <param name="faces">List of GeoFace</param>
+        /// <returns>List of GeoFaces</returns>
+        private List<GeoFace> ConvertFacesToTriangular(List<GeoFace> faces)
+        {
+            int secondVert = 0;
+            List<GeoFace> triangleFaces = new List<GeoFace>();
+
+            foreach (GeoFace face in faces)
+            {
+                int faceVertCount = face._LFVertices.Count;
+
+                if (faceVertCount <= 3) continue;
+
+                secondVert++;
+                while (secondVert != faceVertCount - 1)
+                {
+                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>() };
+                    newFace._LFVertices.Add(face._LFVertices[0]);
+                    newFace._LFVertices.Add(face._LFVertices[secondVert]);
+                    newFace._LFVertices.Add(face._LFVertices[secondVert + 1]);
+                    triangleFaces.Add(newFace);
+                    secondVert++;
+                }
+                secondVert = 0;
+            }
+            return triangleFaces;
+        }
+
+
+        /// <summary>
+        /// Adds a vertex to the geometry container. Can then be controlled by the kernel
+        /// </summary>
+        /// <param name="val"></param>
+        public HandleVertex AddVertex(float3 val)
+        {
+            HandleVertex hvToAdd = _GeometryContainer.AddVertex(val);
+
+            if (!_LverticeHndl.Contains(hvToAdd))
+            {
+                _LverticeHndl.Add(hvToAdd);
             }
             else
             {
-                // The first hedge does not point to this face - so you can assume it points to the neighbour face. So the second is the hedge to go with.
-                faceCont._h._DataIndex = hEdgePtrCont1._he._DataIndex;
+                Console.WriteLine("$$$ Vertex has been already inserted!");
             }
-            _LfacePtrCont.RemoveAt(_LfacePtrCont.Count - 1);
-            _LfacePtrCont.Add(faceCont);
+            return hvToAdd;
         }
 
 
         /// <summary>
-        /// Updates the "inner" half edges clockwise so the next pointers are correct.
-        /// Is called after a face is inserted.
+        /// Adds a face from the importer to the geometry container
         /// </summary>
-        /// <param name="edgeList">A list of edges that belong to a specific face</param>
-        public void UpdateCWHedges(List<HandleEdge> edgeList)
+        /// <param name="gf">GeoFace object from the importer</param>
+        private void AddFace(GeoFace gf)
         {
-            // Proceed the loop for every edge and connect "hedge1" to the next hedge.
-            for (int i = 0; i < edgeList.Count; i++)
-            {
-                // Test if the hedge1 or hedge2 is used. Decide by looking at their face pointers.
-                int indexhedge1 = _LedgePtrCont[edgeList[i]._DataIndex]._he1;
-                int indexhedge2 = _LedgePtrCont[edgeList[i]._DataIndex]._he2;
-                HEdgePtrCont hedgePtrCont1 = _LhedgePtrCont[indexhedge1];
-                HEdgePtrCont hedgePtrCont2 = _LhedgePtrCont[indexhedge2];
+            _LfaceHndl.Add(
+                _GeometryContainer.AddFace(gf)
+                );
 
-                if (hedgePtrCont1._f == _LfacePtrCont.Count - 1)
+            List<HandleVertex> LhFaceVerts = new List<HandleVertex>();
+            foreach (float3 vVal in gf._LFVertices)
+            {
+                LhFaceVerts.Add(
+                        AddVertex(vVal)
+                    );
+            }
+
+            List<HandleEdge> LtmpEdgesForFace = new List<HandleEdge>();
+            int vertsCount = LhFaceVerts.Count;
+            for (int i = 0; i < vertsCount; i++)
+            {
+                HandleVertex hvFrom = LhFaceVerts[i];
+                if (i + 1 < vertsCount)
                 {
-                    // The face the edge1 points to is the active face - hurray! use this edge and move on.
-                    if (i + 1 < edgeList.Count)
+                    HandleVertex hvTo = LhFaceVerts[i + 1];
+                    HandleEdge handleEdge = _GeometryContainer.AddEdge(hvFrom, hvTo);
+                    if (!_LedgeHndl.Contains(handleEdge))
                     {
-                        // Just use the next hedge
-                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[i + 1]._DataIndex]._he1];
-                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
-                        {
-                            // use first
-                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont1._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge1);
-                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
-                        }
-                        else
-                        {
-                            // use second
-                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont1._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge1);
-                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
-                        }
+                        _LedgeHndl.Add(handleEdge);
                     }
                     else
                     {
-                        // Connect to the first hedge in the list because the current is the last one in the face
-                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he1];
-                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
-                        {
-                            // use first
-                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont1._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge1);
-                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
-                        }
-                        else
-                        {
-                            // use second
-                            hedgePtrCont1._nhe._DataIndex = hedgePtrCont1._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont1._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge1);
-                            _LhedgePtrCont.Insert(indexhedge1, hedgePtrCont1);
-                        }
+                        Console.WriteLine("$$$ Edge has been already inserted!");
                     }
+                    LtmpEdgesForFace.Add(handleEdge);
                 }
                 else
                 {
-                    hedgePtrCont2._f._DataIndex = _LfacePtrCont.Count - 1;
-                    // The face the edge2 points to is the current face - let's use the second one then
-                    if (i + 1 < edgeList.Count)
+                    HandleVertex hvTo = LhFaceVerts[0];
+                    HandleEdge handleEdge = _GeometryContainer.AddEdge(hvFrom, hvTo);
+                    if (!_LedgeHndl.Contains(handleEdge))
                     {
-                        // Just use the next hedge
-                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[i + 1]._DataIndex]._he1];
-                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
-                        {
-                            // use first
-                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont2._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge2);
-                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
-                        }
-                        else
-                        {
-                            // use second
-                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont2._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge2);
-                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
-                        }
+                        _LedgeHndl.Add(handleEdge);
                     }
                     else
                     {
-                        // Connect to the first hedge in the list because the current is the last one in the face
-                        HEdgePtrCont nextHedgePtrCont = _LhedgePtrCont[_LedgePtrCont[edgeList[0]._DataIndex]._he1];
-                        if (nextHedgePtrCont._f == _LfacePtrCont.Count - 1)
-                        {
-                            // use first
-                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex - 1 : hedgePtrCont2._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge2);
-                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
-                        }
-                        else
-                        {
-                            // use second
-                            hedgePtrCont2._nhe._DataIndex = hedgePtrCont2._nhe._DataIndex == -1 ? nextHedgePtrCont._he._DataIndex : hedgePtrCont2._nhe._DataIndex;
-                            _LhedgePtrCont.RemoveAt(indexhedge2);
-                            _LhedgePtrCont.Insert(indexhedge2, hedgePtrCont2);
-                        }
+                        Console.WriteLine("$$$ Edge has been already inserted!");
                     }
+                    LtmpEdgesForFace.Add(handleEdge);
                 }
             }
+
+            // Update the face handle, so that it points to the first half edge the face consists of.
+            _GeometryContainer.UpdateFaceToHedgePtr(LtmpEdgesForFace[0]);
+
+            // Hand over the list of edges that are used for this face. Now build up the connections.
+            _GeometryContainer.UpdateCWHedges(LtmpEdgesForFace);
+
+            // Calculate and add the face normal to a list here
+            int lastFaceIndex = _LfaceHndl.Count - 1;
+            _GeometryContainer.AddFaceNormal(_LfaceHndl[lastFaceIndex]);
         }
 
 
         /// <summary>
-        /// Adds a vertex to the geometry container.
+        /// Serves as an enumerable retriever from the geometry object
         /// </summary>
-        /// <param name="val">Generic data type value.</param>
-        public HandleVertex AddVertex(float3 val)
+        /// <param name="hv">A handle to a vertex, should be selected from the GeometryData's vertex handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleVertex</returns>
+        public IEnumerable<HandleVertex> StarIterateVertex(HandleVertex hv)
         {
-            int index = DoesVertexExist(val);
+            return _GeometryContainer.EnStarVertexVertex(hv);
+        }
 
-            // When vertex does not exist - insert it
-            if (index == -1)
-            {
-                _LvertexVal.Add(val);
-
-                _LvertexPtrCont.Add(
-                    new VertexPtrCont()
-                    {
-                        _h = new HandleHalfEdge()
-                        {
-                            _DataIndex = -1
-                        }
-                    }
-                );
-
-                return new HandleVertex() { _DataIndex = _LvertexPtrCont.Count - 1 };
-            }
-            else
-            {
-                HandleVertex vHndl = new HandleVertex();
-                vHndl._DataIndex = index;
-                return vHndl;
-            }
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of INCOMING halfedge handles.
+        /// </summary>
+        /// <param name="hv">A handle to a vertex, should be selected from the GeometryData's vertex handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleHalfEdge> StarVertexIncomingHalfEdge(HandleVertex hv)
+        {
+            return _GeometryContainer.EnStarVertexIncomingHalfEdge(hv);
         }
 
 
         /// <summary>
-        /// Returns the data corresponding to a vertex handle
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of OUTGOING halfedge handles.
         /// </summary>
-        /// <param name="hv">HandleVertex with ID the data is wanted to be retrieved</param>
-        /// <returns></returns>
-        public float3 GetVertexData(HandleVertex hv)
+        /// <param name="hv">A handle to a vertex, should be selected from the GeometryData's vertex handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleHalfEdge> StarVertexOutgoingHalfEdge(HandleVertex hv)
         {
-            return _LvertexVal[hv._DataIndex];
+            return _GeometryContainer.EnStarVertexOutgoingHalfEdge(hv);
         }
 
 
         /// <summary>
-        /// Checks if a vertex already exists in the value list
+        /// Serves as an enumerable retriever from the geometry object
+        /// Returns an enumerable of adjacent face handles.
         /// </summary>
-        /// <param name="v">VertexType parameter (e.g. float3)</param>
-        /// <returns>boolean, true if vertex does alreadyexist</returns>
-        private int DoesVertexExist(float3 v)
+        /// <param name="hv">A handle to a vertex, should be selected from the GeometryData's vertex handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleFace</returns>
+        public IEnumerable<HandleFace> VertexAdjacentFaces(HandleVertex hv)
         {
-            int index = _LvertexVal.FindIndex(vert => vert.Equals(v));
-            return index >= 0 ? index : -1;
+            return _GeometryContainer.EnVertexAdjacentFaces(hv);
+        }
+
+        /// <summary>
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding halfedges specific to a center face.
+        /// </summary>
+        /// <param name="hf">A handle to a face, should be selected from the GeometryData's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleHalfEdge</returns>
+        public IEnumerable<HandleHalfEdge> FaceSurroundingHalfEdges(HandleFace hf)
+        {
+            return _GeometryContainer.EnFaceHalfEdges(hf);
         }
 
 
         /// <summary>
-        /// This method adds a edge to the container. The edge is 'drawn' between two vertices
-        /// It first checks if a connection is already present. If so it returns a handle to this connection
-        /// If not it will establish a connection between the two input vertices.
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding vertices specific to a center face.
         /// </summary>
-        /// <param name="hv1">Vertex From</param>
-        /// <param name="hv2">Vertex To</param>
-        public HandleEdge AddEdge(HandleVertex hvFrom, HandleVertex hvTo)
+        /// <param name="hf">A handle to a face, should be selected from the GeometryData's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleVertex</returns>
+        public IEnumerable<HandleVertex> FaceSurroundingVertices(HandleFace hf)
         {
-            HandleEdge hndlEdge;
-            GetOrAddConnection(hvFrom, hvTo, out hndlEdge);
-            return new HandleEdge() { _DataIndex = hndlEdge._DataIndex };
+            return _GeometryContainer.EnFaceVertices(hf);
         }
 
 
         /// <summary>
-        /// Returns true if a connection already exists and fills the out parameter with a handle to the edge
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding vertices specific to a center face.
         /// </summary>
-        /// <param name="hv1">HandleVertex From vertex</param>
-        /// <param name="hv2">HandleVertex To vertex</param>
-        /// <param name="he">HandleEdge is filled when connection already exists with valid index otherwise with -1</param>
-        /// <returns></returns>
-        public bool GetOrAddConnection(HandleVertex hv1, HandleVertex hv2, out HandleEdge he)
+        /// <param name="hf">A handle to a face, should be selected from the GeometryData's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleEdge</returns>
+        public IEnumerable<HandleEdge> FaceSurroundingEdges(HandleFace hf)
         {
-            int index = -1;
-            if (_LedgePtrCont.Count != 0 && _LhedgePtrCont.Count != 0)
-            {
-                index = _LedgePtrCont.FindIndex(
-                    edgePtrCont => _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv1._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv2._DataIndex
-                        ||
-                    _LhedgePtrCont[edgePtrCont._he1._DataIndex]._v._DataIndex == hv2._DataIndex && _LhedgePtrCont[edgePtrCont._he2._DataIndex]._v._DataIndex == hv1._DataIndex
-                    );
-            }
-            if (index >= 0)
-            {
-                if (globalinf.LFGMessages._DEBUGOUTPUT)
-                {
-                    Console.WriteLine("     Existing edge found - Not creating a new one.");
-                }
-                he = new HandleEdge() { _DataIndex = index };
-                return true;
-            }
-            else
-            {
-                if (globalinf.LFGMessages._DEBUGOUTPUT)
-                {
-                    Console.WriteLine("     Edge not found - creating new one.");
-                }
-                he._DataIndex = CreateConnection(hv1, hv2)._DataIndex;
-                return false;
-            }
+            return _GeometryContainer.EnFaceEdges(hf);
         }
 
 
         /// <summary>
-        /// Establishes a connection between two vertices.
-        /// 1) Creates two half-edges
-        /// 2) Fills them with information
-        /// 3) Creates an edge pointer container and adds it to the geo container.
-        /// 4) returns a handle to an edge
+        /// Serves as an enumerable retriever from the geometry object.
+        /// Returns an enumerable of surrounding faces specific to a center face.
         /// </summary>
-        /// <param name="hv1">HandleVertex from which vertex</param>
-        /// <param name="hv2">Handlevertex to which vertex</param>
-        public HandleEdge CreateConnection(HandleVertex hvFrom, HandleVertex hvTo)
+        /// <param name="hf">A handle to a face, should be selected from the GeometryData's face handle list to ensure it's correct.</param>
+        /// <returns>IEnumerable of type HandleFace</returns>
+        public IEnumerable<HandleFace> FaceSurroundingFaces(HandleFace hf)
         {
-            HEdgePtrCont hedge1 = new HEdgePtrCont();
-            HEdgePtrCont hedge2 = new HEdgePtrCont();
+            return _GeometryContainer.EnFaceFaces(hf);
+        }
 
-            hedge1._he._DataIndex = _LedgePtrCont.Count == 0 ? 1 : _LhedgePtrCont.Count + 1;
-            hedge1._v._DataIndex = hvTo._DataIndex;
-            hedge1._f._DataIndex = _LfacePtrCont.Count - 1;
-            hedge1._nhe._DataIndex = -1;
 
-            hedge2._he._DataIndex = _LedgePtrCont.Count == 0 ? 0 : _LhedgePtrCont.Count;
-            hedge2._v._DataIndex = hvFrom._DataIndex;
-            hedge2._f._DataIndex = -1;
-            hedge2._nhe._DataIndex = -1;
 
-            _LhedgePtrCont.Add(hedge1);
-            _LhedgePtrCont.Add(hedge2);
+        /* Standard Circle Iterators over all elemets of the geometry object */
 
-            _LedgePtrCont.Add(
-                new EdgePtrCont()
-                {
-                    _he1 = new HandleHalfEdge() { _DataIndex = _LedgePtrCont.Count > 0 ? _LedgePtrCont.Count * 2 : 0 },
-                    _he2 = new HandleHalfEdge() { _DataIndex = _LedgePtrCont.Count > 0 ? _LedgePtrCont.Count * 2 + 1 : 1 }
-                }
-            );
-
-            // Update the vertices so they point to the correct hedges.
-            VertexPtrCont vertFrom = _LvertexPtrCont[hvFrom._DataIndex];
-            VertexPtrCont vertTo = _LvertexPtrCont[hvTo._DataIndex];
-
-            if (vertFrom._h._DataIndex == -1)
-            {
-                vertFrom._h._DataIndex = _LedgePtrCont[_LedgePtrCont.Count - 1]._he1._DataIndex;
-                _LvertexPtrCont.RemoveAt(hvFrom._DataIndex);
-                _LvertexPtrCont.Insert(hvFrom._DataIndex, vertFrom);
-            }
-            if (vertTo._h._DataIndex == -1)
-            {
-                vertTo._h._DataIndex = _LedgePtrCont[_LedgePtrCont.Count - 1]._he2._DataIndex;
-                _LvertexPtrCont.RemoveAt(hvTo._DataIndex);
-                _LvertexPtrCont.Insert(hvTo._DataIndex, vertTo);
-            }
-
-            return new HandleEdge() { _DataIndex = _LedgePtrCont.Count - 1 };
-            //return new HandleEdge() { _DataIndex = _LhedgePtrCont.Count / 2 - 1 };
+        /// <summary>
+        /// Returns an enumerable of all vertices handles in the geometry structure.
+        /// </summary>
+        /// <returns>IEnumerable of type HandleVertex</returns>
+        public IEnumerable<HandleVertex> EnAllVertices()
+        {
+            return _LverticeHndl.AsEnumerable();
         }
 
 
         /// <summary>
-        /// Iterator.
-        /// This is a private method that retrieves all halfedge pointer containers pointing to a vertex.
+        /// Returns an enumerable of all edge handles in the geometry structure.
         /// </summary>
-        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
-        /// <returns>An Enumerable of HalfEdgePointerContainers to be used in other iterators.</returns>
-        private IEnumerable<HEdgePtrCont> VertexCenterHalfEdges(HandleVertex hv)
+        /// <returns>IEnumerable of type HandleEdge</returns>
+        public IEnumerable<HandleEdge> EnAllEdges()
         {
-            return _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
-        }
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around a given vertex and enumerate all vertices connected by a direct edge.
-        /// </summary>
-        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
-        /// <returns>An Enumerable of VertexHandles to be used in loops, etc.</returns>
-        public IEnumerable<HandleVertex> EnStarVertexVertex(HandleVertex hv)
-        {
-            return VertexCenterHalfEdges(hv).Select(val => _LhedgePtrCont[val._he]._v);
-            //IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
-            //return EnhEdgePtr.Select(val => _LhedgePtrCont[val._he]._v);
+            return _LedgeHndl.AsEnumerable();
         }
 
 
         /// <summary>
-        /// Iterator.
-        /// Circulate around a given vertex and enumerate all incoming halfedges.
+        /// Returns an enumerable of all face handles in the geometry structure.
         /// </summary>
-        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
-        /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleHalfEdge> EnStarVertexIncomingHalfEdge(HandleVertex hv)
+        /// <returns>IEnumerable of type HandleFace</returns>
+        public IEnumerable<HandleFace> EnAllFaces()
         {
-            return VertexCenterHalfEdges(hv).Select(val => _LhedgePtrCont[_LhedgePtrCont[val._he]._he]._he);
-            //IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
-            //return EnhEdgePtr.Select(val => _LhedgePtrCont[_LhedgePtrCont[val._he]._he]._he);
+            return _LfaceHndl.AsEnumerable();
         }
 
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around a given vertex and enumerate all outgoing halfedges.
-        /// </summary>
-        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
-        /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleHalfEdge> EnStarVertexOutgoingHalfEdge(HandleVertex hv)
-        {
-            return VertexCenterHalfEdges(hv).Select(val => _LhedgePtrCont[val._he]._he);
-            //IEnumerable<HEdgePtrCont> EnhEdgePtr = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
-            //return EnhEdgePtr.Select(val => _LhedgePtrCont[val._he]._he);
-        }
-
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around a given vertex and enumerate all faces adjacent to the center vertex.
-        /// </summary>
-        /// <param name="hv">A handle to a vertex to use as a 'center' vertex.</param>
-        /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleFace> EnVertexAdjacentFaces(HandleVertex hv)
-        {
-            return VertexCenterHalfEdges(hv).Select(val => val._f);
-            //IEnumerable<HEdgePtrCont> enIncomingHedges = _LhedgePtrCont.FindAll(hedges => hedges._v == hv);
-            //IEnumerable<HandleFace> enHandleFacesAdjacentInc = enIncomingHedges.Select(val => val._f);
-            //return enHandleFacesAdjacentInc;
-        }
-
-
-        /// <summary>
-        /// Iterator.
-        /// This is a private method that retrieves all halfedge pointer containers which belong to a specific face handle.
-        /// </summary>
-        /// <param name="hf">A handle to the center face.</param>
-        /// <returns>An Enumerable of haldedge pointer containers.</returns>
-        private IEnumerable<HEdgePtrCont> FaceCenterHalfEdges(HandleFace hf)
-        {
-            return _LhedgePtrCont.FindAll(hedges => hedges._f == hf);
-        }
-
-
-        /// <summary>
-        /// Converts a half edge handle to an edge handle.
-        /// </summary>
-        /// <param name="hh">A halfedge handle to convert.</param>
-        /// <returns>HandleEdge. A new Handle to an already existing edge.</returns>
-        private HandleEdge HalfEdgeHandleToEdgeHandle(HandleHalfEdge hh)
-        {
-            return new HandleEdge() { _DataIndex = hh / 2 };
-        }
-
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around all the halfedges of a given face handle.
-        /// </summary>
-        /// <param name="hf">A handle to a face used as the 'center' face.</param>
-        /// <returns>An Enumerable of halfedge handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleHalfEdge> EnFaceHalfEdges(HandleFace hf)
-        {
-            return FaceCenterHalfEdges(hf).Select(val => _LhedgePtrCont[val._he]._he);
-        }
-
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around all the vertice of a given face handle.
-        /// </summary>
-        /// <param name="hf">A handle to a face used as the 'center' face.</param>
-        /// <returns>An Enumerable of vertex handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleVertex> EnFaceVertices(HandleFace hf)
-        {
-            return FaceCenterHalfEdges(hf).Select(val => val._v);
-        }
-
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around all the edges of a given face handle.
-        /// </summary>
-        /// <param name="hf">A handle to a face used as the 'center' face.</param>
-        /// <returns>An Enumerable of edge handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleEdge> EnFaceEdges(HandleFace hf)
-        {
-            return EnFaceHalfEdges(hf).Select(val => HalfEdgeHandleToEdgeHandle(val));
-        }
-
-
-        /// <summary>
-        /// Iterator.
-        /// Circulate around all the faces surrounding a specific face.
-        /// </summary>
-        /// <param name="hf">A handle to a face used as the 'center' face.</param>
-        /// <returns>An Enumerable of face handles to be used in loops, etc.</returns>
-        public IEnumerable<HandleFace> EnFaceFaces(HandleFace hf)
-        {
-            return FaceCenterHalfEdges(hf).Select(val => _LhedgePtrCont[val._he]._f);
-        }
 
     }
 }

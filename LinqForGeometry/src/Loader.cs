@@ -23,12 +23,12 @@ namespace hsfurtwangen.dsteffen.lfg
 {
     class Loader
     {
-        static KernelController _lfgSys;
+        static Geometry _lfgSys;
 
         static void Main(string[] args)
         {
             Stopwatch stopWatch = new Stopwatch();
-            _lfgSys = new KernelController();
+            _lfgSys = new Geometry();
             stopWatch.Start();
             //_lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/plane_square_1.obj");
             _lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/cube_square_1.obj");

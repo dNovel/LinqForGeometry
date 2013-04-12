@@ -32,7 +32,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
         String _SassetFileContent;
         String[] _SendOfLine = { "\n" };
 
-        // Geometry related
+        // GeometryData related
         internal List<GeoFace> _LgeoFaces;
         internal List<VertexType> _LvertsTest;
 
@@ -41,7 +41,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
             // File related
             _SassetFileContent = "";
 
-            // Geometry related
+            // GeometryData related
             _LgeoFaces = new List<GeoFace>();
             _LvertsTest = new List<VertexType>();
         }
