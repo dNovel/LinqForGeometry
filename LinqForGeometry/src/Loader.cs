@@ -32,6 +32,7 @@ namespace hsfurtwangen.dsteffen.lfg
             stopWatch.Start();
             //_lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/plane_square_1.obj");
             _lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/cube_square_1.obj");
+            //_lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/cube_triangle_1.obj");
             //_lfgSys.LoadAsset("C:/Users/dominik/DevelopmentTEMP/LinqForGeometry/LinqForGeometry/assets/hellknight.obj");
             stopWatch.Stop();
             TimeSpan timeSpan = stopWatch.Elapsed;
@@ -138,7 +139,7 @@ namespace hsfurtwangen.dsteffen.lfg
         {
             for (int i = 0; i < _lfgSys._LfaceHndl.Count; i++)
             {
-                if (i < _lfgSys._LverticeHndl.Count)
+                if (i < _lfgSys._LfaceHndl.Count)
                 {
 
                     IEnumerable<HandleVertex> enhandlevert = _lfgSys.FaceSurroundingVertices(new HandleFace() {_DataIndex = i});

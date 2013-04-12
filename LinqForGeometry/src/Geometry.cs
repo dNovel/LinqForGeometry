@@ -40,6 +40,8 @@ namespace hsfurtwangen.dsteffen.lfg
         private List<EdgePtrCont> _LedgePtrCont;
         private List<FacePtrCont> _LfacePtrCont;
 
+        private List<float3> _LfaceNormals;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="hsfurtwangen.dsteffen.lfg.Geometry"/> class.
@@ -54,6 +56,8 @@ namespace hsfurtwangen.dsteffen.lfg
             _LhedgePtrCont = new List<HEdgePtrCont>();
             _LedgePtrCont = new List<EdgePtrCont>();
             _LfacePtrCont = new List<FacePtrCont>();
+
+            _LfaceNormals = new List<float3>();
         }
 
 
@@ -75,7 +79,30 @@ namespace hsfurtwangen.dsteffen.lfg
             );
             HandleFace fHndl = new HandleFace();
             fHndl._DataIndex = _LfacePtrCont.Count - 1;
+
+            // TODO: Add the face normal here
+            AddFaceNormal(fHndl);
+
             return fHndl;
+        }
+
+
+        public void AddFaceNormal(HandleFace handleFace)
+        {
+            IEnumerable<HandleVertex> enVerts = EnFaceVertices(handleFace);
+            var Lverts = enVerts.Select(handleVertex => _LvertexVal[handleVertex]).ToList();
+
+            var p0 = Lverts[0];
+            var p1 = Lverts[1];
+            var p2 = Lverts[2];
+
+            var v1 = float3.Subtract(p1 - p0);
+            var v2 = float3.Subtract(p2 - p0);
+
+            var n = float3.Cross(v1, v2);
+            _LfaceNormals.Add(
+                float3.Normalize(n)
+                );
         }
 
         /// <summary>

@@ -26,7 +26,6 @@ namespace hsfurtwangen.dsteffen.lfg
         public List<HandleEdge> _LedgeHndl;
         public List<HandleFace> _LfaceHndl;
 
-
         /// <summary>
         /// Constructor for the KernelController class.
         /// </summary>
@@ -54,6 +53,14 @@ namespace hsfurtwangen.dsteffen.lfg
 
             List<GeoFace> faceList = _objImporter.LoadAsset(path);
 
+            // Convert a x-poly model to a triangular poly model because FUSEE only can handle triangular polys for now.
+            if (globalinf.LFGMessages.FLAG_FUSEE_TRIANGLES)
+            {
+                List<GeoFace> newFaces = ConvertFacesToTriangular(faceList);
+                faceList.Clear();
+                faceList = newFaces;
+            }
+
             TimeSpan timeSpan = stopWatch.Elapsed;
             string timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to import the .obj file: " + timeDone);
@@ -74,6 +81,38 @@ namespace hsfurtwangen.dsteffen.lfg
             timeSpan = stopWatch.Elapsed;
             timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
+        }
+
+
+        /// <summary>
+        /// This method converts a quadrangular polygon mesh to a triangular polygon mesh
+        /// </summary>
+        /// <param name="faces">List of GeoFace</param>
+        /// <returns>List of GeoFaces</returns>
+        private List<GeoFace> ConvertFacesToTriangular(List<GeoFace> faces)
+        {
+            int secondVert = 0;
+            List<GeoFace> triangleFaces = new List<GeoFace>();
+
+            foreach (GeoFace face in faces)
+            {
+                int faceVertCount = face._LFVertices.Count;
+                
+                if (faceVertCount <= 3) continue;
+                
+                secondVert++;
+                while(secondVert != faceVertCount - 1)
+                {
+                    GeoFace newFace = new GeoFace() {_LFVertices = new List<float3>()};
+                    newFace._LFVertices.Add(face._LFVertices[0]);
+                    newFace._LFVertices.Add(face._LFVertices[secondVert]);
+                    newFace._LFVertices.Add(face._LFVertices[secondVert + 1]);
+                    triangleFaces.Add(newFace);
+                    secondVert++;
+                }
+                secondVert = 0;
+            }
+            return triangleFaces;
         }
 
 

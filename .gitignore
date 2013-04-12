@@ -169,6 +169,8 @@ pip-log.txt
 
 # Ignore these files-types
 *.txt
+*.c4d
+*.md5mesh
 
 # Ignore these files
 commit_msg_helper.txt
