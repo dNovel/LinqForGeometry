@@ -16,7 +16,7 @@ namespace hsfurtwangen.dsteffen.lfg
         private WavefrontImporter<float3> _objImporter;
         private List<GeoFace> _GeoFaces;
 
-        private Geometry<float3, GeoFace, float3> _GeometryContainer;
+        private Geometry _GeometryContainer;
 
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace hsfurtwangen.dsteffen.lfg
             _LedgeHndl = new List<HandleEdge>();
             _LfaceHndl = new List<HandleFace>();
 
-            _GeometryContainer = new Geometry<float3, GeoFace, float3>(this);
+            _GeometryContainer = new Geometry(this);
         }
 
 
@@ -81,6 +81,17 @@ namespace hsfurtwangen.dsteffen.lfg
             timeSpan = stopWatch.Elapsed;
             timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
+
+            // TODO: Calc the vertex normals.
+            var LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
+            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine("Vertex Normals: ");
+                foreach (float3 lVertexNormal in LVertexNormals)
+                {
+                    Console.WriteLine("     $" + lVertexNormal.ToString());
+                }
+            }
         }
 
 
@@ -97,13 +108,13 @@ namespace hsfurtwangen.dsteffen.lfg
             foreach (GeoFace face in faces)
             {
                 int faceVertCount = face._LFVertices.Count;
-                
+
                 if (faceVertCount <= 3) continue;
-                
+
                 secondVert++;
-                while(secondVert != faceVertCount - 1)
+                while (secondVert != faceVertCount - 1)
                 {
-                    GeoFace newFace = new GeoFace() {_LFVertices = new List<float3>()};
+                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>() };
                     newFace._LFVertices.Add(face._LFVertices[0]);
                     newFace._LFVertices.Add(face._LFVertices[secondVert]);
                     newFace._LFVertices.Add(face._LFVertices[secondVert + 1]);
@@ -194,6 +205,10 @@ namespace hsfurtwangen.dsteffen.lfg
 
             // Hand over the list of edges that are used for this face. Now build up the connections.
             _GeometryContainer.UpdateCWHedges(LtmpEdgesForFace);
+
+            // Calculate and add the face normal to a list here
+            int lastFaceIndex = _LfaceHndl.Count - 1;
+            _GeometryContainer.AddFaceNormal(_LfaceHndl[lastFaceIndex]);
         }
 
 

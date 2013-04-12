@@ -27,13 +27,12 @@ namespace hsfurtwangen.dsteffen.lfg
     /// This is a container for the geometry of one mesh.
     /// So if a model is imported, it will be represented in the program as an object of this container class.
     /// </summary>
-    public class Geometry<VertexType, FaceType, EdgeType>
+    public class Geometry
     {
         // Vars
         private KernelController _KernelController;
 
-        private List<VertexType> _LvertexVal;
-        private List<EdgeType> _LedgeVal;
+        private List<float3> _LvertexVal;
 
         private List<VertexPtrCont> _LvertexPtrCont;
         private List<HEdgePtrCont> _LhedgePtrCont;
@@ -50,7 +49,7 @@ namespace hsfurtwangen.dsteffen.lfg
         {
             _KernelController = kc;
 
-            _LvertexVal = new List<VertexType>();
+            _LvertexVal = new List<float3>();
 
             _LvertexPtrCont = new List<VertexPtrCont>();
             _LhedgePtrCont = new List<HEdgePtrCont>();
@@ -80,29 +79,49 @@ namespace hsfurtwangen.dsteffen.lfg
             HandleFace fHndl = new HandleFace();
             fHndl._DataIndex = _LfacePtrCont.Count - 1;
 
-            // TODO: Add the face normal here
-            AddFaceNormal(fHndl);
-
             return fHndl;
         }
 
 
+        /// <summary>
+        /// This method adds a face normal vector to a list.
+        /// The vector is calculated for the face which handle the method expects.
+        /// Normally should not be called by the user. The system is calling it once a face has been inserted to the geometry object.
+        /// </summary>
+        /// <param name="handleFace">Handle to a face</param>
         public void AddFaceNormal(HandleFace handleFace)
         {
             IEnumerable<HandleVertex> enVerts = EnFaceVertices(handleFace);
             var Lverts = enVerts.Select(handleVertex => _LvertexVal[handleVertex]).ToList();
 
-            var p0 = Lverts[0];
-            var p1 = Lverts[1];
-            var p2 = Lverts[2];
+            float3 p0 = Lverts[0];
+            float3 p1 = Lverts[1];
+            float3 p2 = Lverts[2];
 
-            var v1 = float3.Subtract(p1 - p0);
-            var v2 = float3.Subtract(p2 - p0);
+            float3 v1 = float3.Subtract(p1, p0);
+            float3 v2 = float3.Subtract(p2, p0);
 
-            var n = float3.Cross(v1, v2);
+            float3 n = float3.Cross(v1, v2);
             _LfaceNormals.Add(
                 float3.Normalize(n)
                 );
+        }
+
+        /// <summary>
+        /// This method calculates a vertex normal. Staring Point is a handle to a vertex.
+        /// It will iterate over all faces adjacent to the vertex the handle points to.
+        /// </summary>
+        /// <param name="handleVertex">A handle to a vertex</param>
+        /// <returns>float3 value which is the normal vektor for the vertex</returns>
+        public float3 CalcVertexNormal(HandleVertex handleVertex)
+        {
+            var adjacentfaceNormals = EnVertexAdjacentFaces(handleVertex).Select(face => _LfaceNormals[face]).ToList();
+            int adjacentfaceCount = adjacentfaceNormals.Count;
+            var sumNormals = new float3();
+            sumNormals = adjacentfaceNormals.Aggregate(sumNormals, (current, adjacentfaceNormal) => float3.Add(current, adjacentfaceNormal));
+            sumNormals = float3.Divide(sumNormals, adjacentfaceCount);
+
+            return float3.Normalize(sumNormals);
         }
 
         /// <summary>
@@ -238,7 +257,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Adds a vertex to the geometry container.
         /// </summary>
         /// <param name="val">Generic data type value.</param>
-        public HandleVertex AddVertex(VertexType val)
+        public HandleVertex AddVertex(float3 val)
         {
             int index = DoesVertexExist(val);
 
@@ -273,7 +292,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// </summary>
         /// <param name="hv">HandleVertex with ID the data is wanted to be retrieved</param>
         /// <returns></returns>
-        public VertexType GetVertexData(HandleVertex hv)
+        public float3 GetVertexData(HandleVertex hv)
         {
             return _LvertexVal[hv._DataIndex];
         }
@@ -284,7 +303,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// </summary>
         /// <param name="v">VertexType parameter (e.g. float3)</param>
         /// <returns>boolean, true if vertex does alreadyexist</returns>
-        private int DoesVertexExist(VertexType v)
+        private int DoesVertexExist(float3 v)
         {
             int index = _LvertexVal.FindIndex(vert => vert.Equals(v));
             return index >= 0 ? index : -1;

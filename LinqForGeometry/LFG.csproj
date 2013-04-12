@@ -46,7 +46,6 @@
     <Compile Include="src\Importer\WavefrontImporter.cs" />
     <Compile Include="src\KernelController.cs" />
     <Compile Include="src\Loader.cs" />
-    <Compile Include="src\Structs\FaceNormal.cs" />
     <Compile Include="src\Structs\Handles\HandleVertex.cs" />
     <Compile Include="src\Structs\Handles\HandleFace.cs" />
     <Compile Include="src\Structs\Handles\HandleHalfEdge.cs" />
