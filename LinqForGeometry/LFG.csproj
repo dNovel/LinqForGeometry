@@ -6,10 +6,11 @@
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DFFDB3A9-2429-4E47-B65C-E2C0F3F66146}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>LinqForGeometry</RootNamespace>
     <AssemblyName>LinqForGeometry</AssemblyName>
-    <StartupObject>hsfurtwangen.dsteffen.lfg.Loader</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -33,6 +34,9 @@
     <GenerateDocumentation>True</GenerateDocumentation>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Fusee.Engine.Core">
+      <HintPath>E:\Development\Fusee\Bin\Debug\Fusee.Engine.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Fusee.Math.Core, Version=0.1.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>E:\Development\Fusee\Bin\Debug\Fusee.Math.Core.dll</HintPath>

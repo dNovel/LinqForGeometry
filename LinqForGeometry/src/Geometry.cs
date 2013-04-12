@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using Fusee.Math;
+using Fusee.Engine;
 using hsfurtwangen.dsteffen.lfg;
 using hsfurtwangen.dsteffen.lfg.structs.handles;
 using hsfurtwangen.dsteffen.lfg.Importer;
@@ -25,6 +26,7 @@ namespace hsfurtwangen.dsteffen.lfg
         public List<HandleVertex> _LverticeHndl;
         public List<HandleEdge> _LedgeHndl;
         public List<HandleFace> _LfaceHndl;
+        public List<short> _LtriangleList;
 
         /// <summary>
         /// Constructor for the GeometryData class.
@@ -37,6 +39,8 @@ namespace hsfurtwangen.dsteffen.lfg
             _LverticeHndl = new List<HandleVertex>();
             _LedgeHndl = new List<HandleEdge>();
             _LfaceHndl = new List<HandleFace>();
+
+            _LtriangleList = new List<short>();
 
             _GeometryContainer = new GeometryData(this);
         }
@@ -83,11 +87,11 @@ namespace hsfurtwangen.dsteffen.lfg
             Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
 
             // TODO: Calc the vertex normals.
-            var LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
-            if (globalinf.LFGMessages._DEBUGOUTPUT)
+            _GeometryContainer._LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
+            if (globalinf.LFGMessages._DEBUGOUTPUT && 1 == 0)
             {
                 Console.WriteLine("Vertex Normals: ");
-                foreach (float3 lVertexNormal in LVertexNormals)
+                foreach (float3 lVertexNormal in _GeometryContainer._LVertexNormals)
                 {
                     Console.WriteLine("     $" + lVertexNormal.ToString());
                 }
@@ -109,23 +113,56 @@ namespace hsfurtwangen.dsteffen.lfg
             {
                 int faceVertCount = face._LFVertices.Count;
 
-                if (faceVertCount <= 3) continue;
-
-                secondVert++;
-                while (secondVert != faceVertCount - 1)
+                if (faceVertCount == 3)
                 {
                     GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>() };
                     newFace._LFVertices.Add(face._LFVertices[0]);
-                    newFace._LFVertices.Add(face._LFVertices[secondVert]);
-                    newFace._LFVertices.Add(face._LFVertices[secondVert + 1]);
+                    newFace._LFVertices.Add(face._LFVertices[1]);
+                    newFace._LFVertices.Add(face._LFVertices[2]);
                     triangleFaces.Add(newFace);
-                    secondVert++;
                 }
-                secondVert = 0;
+                else if (faceVertCount > 3)
+                {
+                    secondVert++;
+                    while (secondVert != faceVertCount - 1)
+                    {
+                        GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>() };
+                        newFace._LFVertices.Add(face._LFVertices[0]);
+                        newFace._LFVertices.Add(face._LFVertices[secondVert]);
+                        newFace._LFVertices.Add(face._LFVertices[secondVert + 1]);
+                        triangleFaces.Add(newFace);
+                        secondVert++;
+                    }
+                    secondVert = 0;
+                }
+                else if (faceVertCount < 3)
+                {
+                    // TODO: Error? Face with less than 3 vertices does not exist.
+                }
             }
             return triangleFaces;
         }
 
+
+        /// <summary>
+        /// Converts the geometry to a fusee mesh object.
+        /// </summary>
+        /// <returns>Fusee Mesh</returns>
+        public Mesh ToMesh()
+        {
+            Mesh mesh = new Mesh();
+            mesh.Vertices = _GeometryContainer._LvertexVal.ToArray();
+            mesh.Normals = _GeometryContainer._LVertexNormals.ToArray();
+
+            // TODO: Meh, not that good sort of a code ;) ... Can do better.
+            foreach (var handleVertex in _LfaceHndl.Select(handleFace => FaceSurroundingVertices(handleFace)).SelectMany(vertsFace => vertsFace))
+            {
+                _LtriangleList.Add((short)handleVertex._DataIndex);
+            }
+            mesh.Triangles = _LtriangleList.ToArray();
+
+            return mesh;
+        }
 
         /// <summary>
         /// Adds a vertex to the geometry container. Can then be controlled by the kernel

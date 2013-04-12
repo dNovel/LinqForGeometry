@@ -32,14 +32,15 @@ namespace hsfurtwangen.dsteffen.lfg
         // Vars
         private Geometry _geometry;
 
-        private List<float3> _LvertexVal;
+        public List<float3> _LvertexVal;
+        public List<float3> _LfaceNormals;
+        public List<float3> _LVertexNormals;
 
         private List<VertexPtrCont> _LvertexPtrCont;
         private List<HEdgePtrCont> _LhedgePtrCont;
         private List<EdgePtrCont> _LedgePtrCont;
         private List<FacePtrCont> _LfacePtrCont;
 
-        private List<float3> _LfaceNormals;
 
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace hsfurtwangen.dsteffen.lfg
             _LfacePtrCont = new List<FacePtrCont>();
 
             _LfaceNormals = new List<float3>();
+            _LVertexNormals = new List<float3>();
         }
 
 
@@ -94,17 +96,20 @@ namespace hsfurtwangen.dsteffen.lfg
             IEnumerable<HandleVertex> enVerts = EnFaceVertices(handleFace);
             var Lverts = enVerts.Select(handleVertex => _LvertexVal[handleVertex]).ToList();
 
-            float3 p0 = Lverts[0];
-            float3 p1 = Lverts[1];
-            float3 p2 = Lverts[2];
+            if (Lverts.Count >= 3)
+            {
+                float3 p0 = Lverts[0];
+                float3 p1 = Lverts[1];
+                float3 p2 = Lverts[2];
 
-            float3 v1 = float3.Subtract(p1, p0);
-            float3 v2 = float3.Subtract(p2, p0);
+                float3 v1 = float3.Subtract(p1, p0);
+                float3 v2 = float3.Subtract(p2, p0);
 
-            float3 n = float3.Cross(v1, v2);
-            _LfaceNormals.Add(
-                float3.Normalize(n)
-                );
+                float3 n = float3.Cross(v1, v2);
+                _LfaceNormals.Add(
+                    float3.Normalize(n)
+                    );
+            }
         }
 
         /// <summary>
@@ -115,12 +120,44 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns>float3 value which is the normal vektor for the vertex</returns>
         public float3 CalcVertexNormal(HandleVertex handleVertex)
         {
-            var adjacentfaceNormals = EnVertexAdjacentFaces(handleVertex).Select(face => _LfaceNormals[face]).ToList();
+            float3 normalized = new float3(0, 0, 0);
+
+            //List<float3> adjacentfaceNormals = EnVertexAdjacentFaces(handleVertex).Select(face => _LfaceNormals[face._DataIndex]).ToList();
+            List<float3> adjacentfaceNormals = new List<float3>();
+            IEnumerable<HandleFace> adjacentfaces = EnVertexAdjacentFaces(handleVertex);
+
+            int faceNormalsCount = _LfaceNormals.Count;
+            foreach (HandleFace handleFace in adjacentfaces)
+            {
+                if (handleFace._DataIndex != -1)
+                {
+                    if (faceNormalsCount > handleFace._DataIndex)
+                    {
+                        adjacentfaceNormals.Add(
+                            _LfaceNormals[handleFace]
+                            );
+                    }
+                }
+                else
+                {
+                    // TODO: Error face handle should not be -1. Why can it be?
+                }
+            }
+
+            /*
+             *     foreach (HandleFace handleFace in adjacentfaces) {
+                adjacentfaceNormals.Add(
+                    _LfaceNormals[handleFace]
+                    );
+            }
+             */
+
             int adjacentfaceCount = adjacentfaceNormals.Count;
             var sumNormals = new float3();
             sumNormals = adjacentfaceNormals.Aggregate(sumNormals, (current, adjacentfaceNormal) => float3.Add(current, adjacentfaceNormal));
             //sumNormals = float3.Divide(sumNormals, adjacentfaceCount);
-            float3 normalized = float3.Normalize(sumNormals);
+            normalized = float3.Normalize(sumNormals);
+
             return normalized;
         }
 
