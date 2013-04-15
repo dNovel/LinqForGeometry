@@ -35,6 +35,7 @@ namespace hsfurtwangen.dsteffen.lfg
         public List<float3> _LvertexVal;
         public List<float3> _LfaceNormals;
         public List<float3> _LVertexNormals;
+        public List<float2> _LuvCoordinates; 
 
         private List<VertexPtrCont> _LvertexPtrCont;
         private List<HEdgePtrCont> _LhedgePtrCont;
@@ -59,6 +60,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
             _LfaceNormals = new List<float3>();
             _LVertexNormals = new List<float3>();
+            _LuvCoordinates = new List<float2>();
         }
 
 

@@ -19,5 +19,6 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
     public struct GeoFace
     {
         internal List<float3> _LFVertices;
+        internal List<float2> _UV;
     }
 }

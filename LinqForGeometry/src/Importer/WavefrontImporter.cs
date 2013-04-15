@@ -34,7 +34,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
 
         // GeometryData related
         internal List<GeoFace> _LgeoFaces;
-        internal List<VertexType> _LvertsTest;
+        internal List<float2> _LuvCoords;
 
         public WavefrontImporter()
         {
@@ -43,7 +43,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
 
             // GeometryData related
             _LgeoFaces = new List<GeoFace>();
-            _LvertsTest = new List<VertexType>();
+            _LuvCoords = new List<float2>();
         }
 
         /// <summary>
@@ -121,7 +121,27 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                     }
                     else if (lineStart.Equals("vt"))
                     {
-                        // vertex texture offset
+                        string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
+
+                        // vertex texture coordinates
+                        if (globalinf.LFGMessages._DEBUGOUTPUT)
+                        {
+                            Console.WriteLine(LFGMessages.INFO_UVFOUND + line);
+                        }
+
+                        List<Double> tmpSave = new List<double>();
+                        foreach (string str in lineSplitted)
+                        {
+                            if (!str.StartsWith("vt") && !str.Equals(""))
+                            {
+                                tmpSave.Add(float.Parse(str, CultureInfo.InvariantCulture));
+                            }
+                        }
+                        float2 uvVal = new float2(
+                            (float)tmpSave[0],
+                            (float)tmpSave[1]
+                            );
+                        _LuvCoords.Add(uvVal);
                     }
                     else if (lineStart.Equals("vn"))
                     {
@@ -148,6 +168,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
 
                         GeoFace geoF = new GeoFace();
                         geoF._LFVertices = new List<float3>();
+                        geoF._UV = new List<float2>();
                         foreach (string str in lineSplitted)
                         {
                             if (!str.StartsWith("f"))
@@ -165,6 +186,15 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                                     {
                                         int fv = int.Parse(s, CultureInfo.InvariantCulture);
                                         geoF._LFVertices.Add(LvertexAttr[fv - 1]);
+
+                                        // TODO: Save the uv pair here to the face?
+                                        // TODO: faceSplit[1] would correspond to the correct uv map data index pair
+                                        if (faceSplit.Length >= 1)
+                                        {
+                                            string uvIndex = faceSplit[1];
+                                            int uvAdress = int.Parse(uvIndex, CultureInfo.InvariantCulture);
+                                            geoF._UV.Add(_LuvCoords[uvAdress - 1]);
+                                        }
                                     }
                                     catch (FormatException)
                                     {

@@ -38,6 +38,7 @@ namespace hsfurtwangen.dsteffen.lfg.globalinf
 
         public static string INFO_VERTEXIDFORFACE = "    " + _INFO + "Vertex ID connected to current face: ";
         public static string INFO_FACEFOUND = "    " + _INFO + "Face found in importer, values: ";
+        public static string INFO_UVFOUND = "    " + _INFO + "UV Coordinate found: ";
 
         public static string UTIL_STOPWFORMAT = "{0:00}sec, {1:000}ms";
 

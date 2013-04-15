@@ -115,10 +115,15 @@ namespace hsfurtwangen.dsteffen.lfg
 
                 if (faceVertCount == 3)
                 {
-                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>() };
+                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>()};
                     newFace._LFVertices.Add(face._LFVertices[0]);
                     newFace._LFVertices.Add(face._LFVertices[1]);
                     newFace._LFVertices.Add(face._LFVertices[2]);
+
+                    newFace._UV.Add(face._UV[0]);
+                    newFace._UV.Add(face._UV[1]);
+                    newFace._UV.Add(face._UV[2]);
+
                     triangleFaces.Add(newFace);
                 }
                 else if (faceVertCount > 3)
@@ -126,10 +131,15 @@ namespace hsfurtwangen.dsteffen.lfg
                     secondVert++;
                     while (secondVert != faceVertCount - 1)
                     {
-                        GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>() };
+                        GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>() };
                         newFace._LFVertices.Add(face._LFVertices[0]);
                         newFace._LFVertices.Add(face._LFVertices[secondVert]);
                         newFace._LFVertices.Add(face._LFVertices[secondVert + 1]);
+
+                        newFace._UV.Add(face._UV[0]);
+                        newFace._UV.Add(face._UV[secondVert]);
+                        newFace._UV.Add(face._UV[secondVert + 1]);
+
                         triangleFaces.Add(newFace);
                         secondVert++;
                     }
@@ -153,6 +163,7 @@ namespace hsfurtwangen.dsteffen.lfg
             Mesh mesh = new Mesh();
             mesh.Vertices = _GeometryContainer._LvertexVal.ToArray();
             mesh.Normals = _GeometryContainer._LVertexNormals.ToArray();
+            mesh.UVs = _GeometryContainer._LuvCoordinates.ToArray();
 
             // TODO: Meh, not that good sort of a code ;) ... Can do better.
             foreach (var handleVertex in _LfaceHndl.Select(handleFace => FaceSurroundingVertices(handleFace)).SelectMany(vertsFace => vertsFace))
@@ -200,6 +211,11 @@ namespace hsfurtwangen.dsteffen.lfg
                 LhFaceVerts.Add(
                         AddVertex(vVal)
                     );
+            }
+
+            foreach (float2 uvpair in gf._UV)
+            {
+                _GeometryContainer._LuvCoordinates.Add(uvpair);
             }
 
             List<HandleEdge> LtmpEdgesForFace = new List<HandleEdge>();
