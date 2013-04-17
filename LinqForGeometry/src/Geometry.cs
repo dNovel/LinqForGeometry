@@ -86,16 +86,11 @@ namespace hsfurtwangen.dsteffen.lfg
             timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
 
-            // TODO: Calc the vertex normals.
+            // Calc the vertex normals.
             _GeometryContainer._LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
-            if (globalinf.LFGMessages._DEBUGOUTPUT && 1 == 0)
-            {
-                Console.WriteLine("Vertex Normals: ");
-                foreach (float3 lVertexNormal in _GeometryContainer._LVertexNormals)
-                {
-                    Console.WriteLine("     $" + lVertexNormal.ToString());
-                }
-            }
+
+            // TODO: Set the default state of the model.
+            _GeometryContainer.SetVertexDefaults();
         }
 
 
@@ -115,7 +110,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
                 if (faceVertCount == 3)
                 {
-                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>()};
+                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>() };
                     newFace._LFVertices.Add(face._LFVertices[0]);
                     newFace._LFVertices.Add(face._LFVertices[1]);
                     newFace._LFVertices.Add(face._LFVertices[2]);
@@ -160,6 +155,7 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns>Fusee Mesh</returns>
         public Mesh ToMesh()
         {
+            _LtriangleList.Clear();
             Mesh mesh = new Mesh();
             mesh.Vertices = _GeometryContainer._LvertexVal.ToArray();
             mesh.Normals = _GeometryContainer._LVertexNormals.ToArray();
@@ -359,7 +355,7 @@ namespace hsfurtwangen.dsteffen.lfg
 
 
 
-        /* Standard Circle Iterators over all elemets of the geometry object */
+        /* Standard circle iterators over all elemets of the geometry object */
 
         /// <summary>
         /// Returns an enumerable of all vertices handles in the geometry structure.
@@ -390,6 +386,66 @@ namespace hsfurtwangen.dsteffen.lfg
             return _LfaceHndl.AsEnumerable();
         }
 
+
+
+        /* Standard transformations on the geometry */
+
+        /// <summary>
+        /// This method can scale the object bigger or smaller dependent on the input parameters
+        /// </summary>
+        /// <param name="scalarX"></param>
+        /// <param name="scalarY"></param>
+        /// <param name="scalarZ"></param>
+        /// <param name="scalarW"></param>
+        /// <returns>Boolean - true if the operation was succesful, false if not.</returns>
+        public bool Scale(float scalarX, float scalarY, float scalarZ, float scalarW = 1.0f)
+        {
+            try
+            {
+                /*
+                if (!_GeometryContainer.VertexDefaultsSet())
+                {
+                    _GeometryContainer.SetVertexDefaults();
+                }
+                */
+
+                float4 row0 = new float4(scalarX, 0f, 0f, 0f);
+                float4 row1 = new float4(0f, scalarY, 0f, 0f);
+                float4 row2 = new float4(0f, 0f, scalarZ, 0f);
+                float4 row3 = new float4(0f, 0f, 0f, scalarW);
+                float4x4 transfMatrix = new float4x4(row0, row1, row2, row3);
+
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => float4x4.TransformPD(transfMatrix, _GeometryContainer._LvertexVal[vertId])).ToList();
+
+                this._GeometryContainer._LvertexVal.Clear();
+                this._GeometryContainer._LvertexVal = null;
+                this._GeometryContainer._LvertexVal = new List<float3>(tmpVerts);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Resets the geometry object to default scaling etc.
+        /// </summary>
+        public bool ResetGeometryToDefault()
+        {
+            try
+            {
+                _GeometryContainer.ResetVerticesToDefault();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
 
     }
 }

@@ -33,9 +33,11 @@ namespace hsfurtwangen.dsteffen.lfg
         private Geometry _geometry;
 
         public List<float3> _LvertexVal;
+        private List<float3> _LvertexValDefault;
+
         public List<float3> _LfaceNormals;
         public List<float3> _LVertexNormals;
-        public List<float2> _LuvCoordinates; 
+        public List<float2> _LuvCoordinates;
 
         private List<VertexPtrCont> _LvertexPtrCont;
         private List<HEdgePtrCont> _LhedgePtrCont;
@@ -596,6 +598,30 @@ namespace hsfurtwangen.dsteffen.lfg
         public IEnumerable<HandleFace> EnFaceFaces(HandleFace hf)
         {
             return FaceCenterHalfEdges(hf).Select(val => _LhedgePtrCont[val._he]._f);
+        }
+
+
+        /// <summary>
+        /// Set the vertex defaults by using the actual vertices.
+        /// This is called before the first change to a model is done.
+        /// </summary>
+        public void SetVertexDefaults()
+        {
+            if (this._LvertexValDefault == null)
+            {
+                this._LvertexValDefault = new List<float3>(this._LvertexVal);
+            }
+        }
+
+        public void ResetVerticesToDefault()
+        {
+            this._LvertexVal.Clear();
+            this._LvertexVal = null;
+
+            this._LvertexVal = new List<float3>(this._LvertexValDefault);
+
+            //this._LvertexValDefault.Clear();
+            //this._LvertexValDefault = null;
         }
 
     }
