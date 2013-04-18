@@ -402,20 +402,13 @@ namespace hsfurtwangen.dsteffen.lfg
         {
             try
             {
-                /*
-                if (!_GeometryContainer.VertexDefaultsSet())
-                {
-                    _GeometryContainer.SetVertexDefaults();
-                }
-                */
-
                 float4 row0 = new float4(scalarX, 0f, 0f, 0f);
                 float4 row1 = new float4(0f, scalarY, 0f, 0f);
                 float4 row2 = new float4(0f, 0f, scalarZ, 0f);
                 float4 row3 = new float4(0f, 0f, 0f, scalarW);
                 float4x4 transfMatrix = new float4x4(row0, row1, row2, row3);
 
-                List<float3> tmpVerts = EnAllVertices().Select(vertId => float4x4.TransformPD(transfMatrix, _GeometryContainer._LvertexVal[vertId])).ToList();
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => transfMatrix * _GeometryContainer._LvertexVal[vertId]).ToList();
 
                 this._GeometryContainer._LvertexVal.Clear();
                 this._GeometryContainer._LvertexVal = null;
@@ -429,6 +422,168 @@ namespace hsfurtwangen.dsteffen.lfg
                 throw;
             }
         }
+
+
+        /// <summary>
+        /// This method translates the model to another position.
+        /// </summary>
+        /// <param name="tX">float factor</param>
+        /// <param name="tY">float factor</param>
+        /// <param name="tZ">float factor</param>
+        /// <returns>bool - true when operation succeeded</returns>
+        public bool Translate(float tX, float tY, float tZ)
+        {
+            try
+            {
+                float4 row0 = new float4(1f, 0f, 0f, tX);
+                float4 row1 = new float4(0f, 1f, 0f, tY);
+                float4 row2 = new float4(0f, 0f, 1f, tZ);
+                float4 row3 = new float4(0f, 0f, 0f, 1f);
+                float4x4 transfMatrix = new float4x4(row0, row1, row2, row3);
+
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => transfMatrix * _GeometryContainer._LvertexVal[vertId]).ToList();
+
+                this._GeometryContainer._LvertexVal.Clear();
+                this._GeometryContainer._LvertexVal = null;
+                this._GeometryContainer._LvertexVal = new List<float3>(tmpVerts);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Rotates the object on the X-Axis.
+        /// </summary>
+        /// <param name="alpha">a float value representing an angle.</param>
+        /// <returns>bool - true if the operation succeeded.</returns>
+        public bool RotateX(float alpha)
+        {
+            try
+            {
+                double cos = System.Math.Cos((double)alpha);
+                double sin = System.Math.Sin((double)alpha);
+
+                float4 row0 = new float4(1f, 0f, 0f, 0f);
+                float4 row1 = new float4(0f, (float)cos, (float)sin, 0f);
+                float4 row2 = new float4(0f, (float)-sin, (float)cos, 0f);
+                float4 row3 = new float4(0f, 0f, 0f, 1f);
+                float4x4 transfMatrix = new float4x4(row0, row1, row2, row3);
+
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => transfMatrix * _GeometryContainer._LvertexVal[vertId]).ToList();
+
+                this._GeometryContainer._LvertexVal.Clear();
+                this._GeometryContainer._LvertexVal = null;
+                this._GeometryContainer._LvertexVal = new List<float3>(tmpVerts);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Rotates the object on the Y-Axis.
+        /// </summary>
+        /// <param name="alpha">a float value representing an angle.</param>
+        /// <returns>bool - true if the operation succeeded.</returns>
+        public bool RotateY(float alpha)
+        {
+            try
+            {
+                double cos = System.Math.Cos((double)alpha);
+                double sin = System.Math.Sin((double)alpha);
+
+                float4 row0 = new float4((float)cos, 0f, (float)-sin, 0f);
+                float4 row1 = new float4(0f, 1f, 0f, 0f);
+                float4 row2 = new float4((float)sin, 0f, (float)cos, 0f);
+                float4 row3 = new float4(0f, 0f, 0f, 1f);
+                float4x4 transfMatrix = new float4x4(row0, row1, row2, row3);
+
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => transfMatrix * _GeometryContainer._LvertexVal[vertId]).ToList();
+
+                this._GeometryContainer._LvertexVal.Clear();
+                this._GeometryContainer._LvertexVal = null;
+                this._GeometryContainer._LvertexVal = new List<float3>(tmpVerts);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+
+        public bool RotateLocalX(float alpha)
+        {
+            // TODO: this is not done yet.
+            try {
+                float4x4 transfMatrix = new float4x4();
+                //float4x4.CreateRotationX(alpha, out transfMatrix);
+                float4x4.CreateFromAxisAngle(new float3(1f, 0f, 0f), alpha, out transfMatrix);
+
+                Fusee.Engine.Diagnostics.Log("Test");
+
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => transfMatrix * _GeometryContainer._LvertexVal[vertId]).ToList();
+
+                this._GeometryContainer._LvertexVal.Clear();
+                this._GeometryContainer._LvertexVal = null;
+                this._GeometryContainer._LvertexVal = new List<float3>(tmpVerts);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Rotates the object on the Z-Axis.
+        /// </summary>
+        /// <param name="alpha">a float value representing an angle.</param>
+        /// <returns>bool - true if the operation succeeded.</returns>
+        public bool RotateZ(float alpha)
+        {
+            try
+            {
+                double cos = System.Math.Cos((double)alpha);
+                double sin = System.Math.Sin((double)alpha);
+
+                float4 row0 = new float4((float)cos, (float)sin, 0f, 0f);
+                float4 row1 = new float4((float)-sin, (float)cos, 0f, 0f);
+                float4 row2 = new float4(0f, 0f, 1f, 0f);
+                float4 row3 = new float4(0f, 0f, 0f, 1f);
+                float4x4 transfMatrix = new float4x4(row0, row1, row2, row3);
+
+                List<float3> tmpVerts = EnAllVertices().Select(vertId => transfMatrix * _GeometryContainer._LvertexVal[vertId]).ToList();
+
+                this._GeometryContainer._LvertexVal.Clear();
+                this._GeometryContainer._LvertexVal = null;
+                this._GeometryContainer._LvertexVal = new List<float3>(tmpVerts);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
 
         /// <summary>
         /// Resets the geometry object to default scaling etc.
