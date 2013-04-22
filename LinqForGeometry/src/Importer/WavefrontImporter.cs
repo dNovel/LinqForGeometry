@@ -23,7 +23,7 @@ using hsfurtwangen.dsteffen.lfg.globalinf;
 namespace hsfurtwangen.dsteffen.lfg.Importer
 {
     /// <summary>
-    /// This is an importer for the wavefront '.obj' computer graphics file
+    /// This is an importer for the <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront obj</a> computer graphics file
     /// To use it just create an instance and pass the file path to the LoadAsset() method
     /// </summary>
     class WavefrontImporter<VertexType>
@@ -187,8 +187,7 @@ namespace hsfurtwangen.dsteffen.lfg.Importer
                                         int fv = int.Parse(s, CultureInfo.InvariantCulture);
                                         geoF._LFVertices.Add(LvertexAttr[fv - 1]);
 
-                                        // TODO: Save the uv pair here to the face?
-                                        // TODO: faceSplit[1] would correspond to the correct uv map data index pair
+                                        // faceSplit[1] would correspond to the correct uv map data index pair
                                         if (faceSplit.Length >= 1)
                                         {
                                             string uvIndex = faceSplit[1];

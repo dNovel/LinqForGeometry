@@ -14,7 +14,9 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+
 using Fusee.Math;
+using Fusee.Engine;
 
 using hsfurtwangen.dsteffen.lfg.structs.ptrcontainer;
 using hsfurtwangen.dsteffen.lfg.structs.handles;
@@ -117,7 +119,7 @@ namespace hsfurtwangen.dsteffen.lfg
         }
 
         /// <summary>
-        /// This method calculates a vertex normal. Staring Point is a handle to a vertex.
+        /// This method calculates a vertex normal. Starting Point is a handle to a vertex.
         /// It will iterate over all faces adjacent to the vertex the handle points to.
         /// </summary>
         /// <param name="handleVertex">A handle to a vertex</param>
@@ -133,18 +135,26 @@ namespace hsfurtwangen.dsteffen.lfg
             int faceNormalsCount = _LfaceNormals.Count;
             foreach (HandleFace handleFace in adjacentfaces)
             {
-                if (handleFace._DataIndex != -1)
+                try
                 {
-                    if (faceNormalsCount > handleFace._DataIndex)
+                    if (handleFace._DataIndex != -1)
                     {
-                        adjacentfaceNormals.Add(
-                            _LfaceNormals[handleFace]
-                            );
+                        if (faceNormalsCount > handleFace._DataIndex)
+                        {
+                            adjacentfaceNormals.Add(
+                                _LfaceNormals[handleFace]
+                                );
+                        }
+                    }
+                    else
+                    {
+                        // TODO: Error face handle should not be -1. Should not occure. Otherwise perhaps a runtime error.
+                        throw new Exception("Runtime Error: Face handle for vertex is -1. Vertex does not point to a face.");
                     }
                 }
-                else
+                catch (Exception)
                 {
-                    // TODO: Error face handle should not be -1. Why can it be?
+                    Fusee.Engine.Diagnostics.Log("Runtime Error: Face handle for vertex is -1. Vertex does not point to a face.");
                 }
             }
 

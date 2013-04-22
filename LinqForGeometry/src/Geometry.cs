@@ -9,6 +9,7 @@ using Fusee.Engine;
 using hsfurtwangen.dsteffen.lfg;
 using hsfurtwangen.dsteffen.lfg.structs.handles;
 using hsfurtwangen.dsteffen.lfg.Importer;
+using hsfurtwangen.dsteffen.lfg.Exceptions;
 
 namespace hsfurtwangen.dsteffen.lfg
 {
@@ -19,7 +20,6 @@ namespace hsfurtwangen.dsteffen.lfg
 
         private GeometryData _GeometryContainer;
 
-
         /// <summary>
         /// These lists are public so the user can retrieve his handles and work with them.
         /// </summary>
@@ -27,6 +27,10 @@ namespace hsfurtwangen.dsteffen.lfg
         public List<HandleEdge> _LedgeHndl;
         public List<HandleFace> _LfaceHndl;
         public List<short> _LtriangleList;
+
+        public bool _Changes = false;
+        public bool _triangleListSet = false;
+        public bool _ChangesOnFaces = false;
 
         /// <summary>
         /// Constructor for the GeometryData class.
@@ -89,7 +93,7 @@ namespace hsfurtwangen.dsteffen.lfg
             // Calc the vertex normals.
             _GeometryContainer._LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
 
-            // TODO: Set the default state of the model.
+            // Set the default form etc. of the model.
             _GeometryContainer.SetVertexDefaults();
         }
 
@@ -124,7 +128,8 @@ namespace hsfurtwangen.dsteffen.lfg
                 else if (faceVertCount > 3)
                 {
                     secondVert++;
-                    while (secondVert != faceVertCount - 1)
+                    // Changed from while (secondVert != faceVertCount - 1) to while (secondVert <= faceVertCount - 1)
+                    while (secondVert <= faceVertCount - 1)
                     {
                         GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>() };
                         newFace._LFVertices.Add(face._LFVertices[0]);
@@ -142,7 +147,8 @@ namespace hsfurtwangen.dsteffen.lfg
                 }
                 else if (faceVertCount < 3)
                 {
-                    // TODO: Error? Face with less than 3 vertices does not exist.
+                    // Error. Faces with less than 3 vertices does not exist.
+                    throw new MeshLeakException();
                 }
             }
             return triangleFaces;
@@ -151,22 +157,28 @@ namespace hsfurtwangen.dsteffen.lfg
 
         /// <summary>
         /// Converts the geometry to a fusee mesh object.
+        /// This method creates a list of triangles from the existing faces and vertices beeing hold by the data structure.
         /// </summary>
         /// <returns>Fusee Mesh</returns>
         public Mesh ToMesh()
         {
-            _LtriangleList.Clear();
+            // TODO: This is what takes a long time and is responsible for framedrops. Have to set a bool if any changes on the triangles are made so they will be generated one time.
+            if (!_triangleListSet && !_ChangesOnFaces)
+            {
+                _LtriangleList.Clear();
+                _LtriangleList = EnAllFaces().SelectMany(face => FaceSurroundingVertices(face).Select(vert => (short)vert._DataIndex)).ToList();
+                _triangleListSet = true;
+            }
+
             Mesh mesh = new Mesh();
             mesh.Vertices = _GeometryContainer._LvertexVal.ToArray();
             mesh.Normals = _GeometryContainer._LVertexNormals.ToArray();
             mesh.UVs = _GeometryContainer._LuvCoordinates.ToArray();
 
-            // TODO: Meh, not that good sort of a code ;) ... Can do better.
-            foreach (var handleVertex in _LfaceHndl.Select(handleFace => FaceSurroundingVertices(handleFace)).SelectMany(vertsFace => vertsFace))
-            {
-                _LtriangleList.Add((short)handleVertex._DataIndex);
-            }
+            // Convert all the faces to 'triangles'.
             mesh.Triangles = _LtriangleList.ToArray();
+            // This is the staement for every frame convertion.
+            //mesh.Triangles = EnAllFaces().SelectMany(face => FaceSurroundingVertices(face).Select(vert => (short)vert._DataIndex)).ToArray();
 
             return mesh;
         }
@@ -211,6 +223,10 @@ namespace hsfurtwangen.dsteffen.lfg
 
             foreach (float2 uvpair in gf._UV)
             {
+                if (globalinf.LFGMessages._DEBUGOUTPUT)
+                {
+                    Fusee.Engine.Diagnostics.Log(uvpair);
+                }
                 _GeometryContainer._LuvCoordinates.Add(uvpair);
             }
 
@@ -527,8 +543,9 @@ namespace hsfurtwangen.dsteffen.lfg
 
         public bool RotateLocalX(float alpha)
         {
-            // TODO: this is not done yet.
-            try {
+            // TODO: No Local Rotation, yet. This has to be fixed sometime.
+            try
+            {
                 float4x4 transfMatrix = new float4x4();
                 //float4x4.CreateRotationX(alpha, out transfMatrix);
                 float4x4.CreateFromAxisAngle(new float3(1f, 0f, 0f), alpha, out transfMatrix);
