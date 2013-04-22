@@ -129,7 +129,7 @@ namespace hsfurtwangen.dsteffen.lfg
                 {
                     secondVert++;
                     // Changed from while (secondVert != faceVertCount - 1) to while (secondVert <= faceVertCount - 1)
-                    while (secondVert <= faceVertCount - 1)
+                    while (secondVert != faceVertCount - 1)
                     {
                         GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>() };
                         newFace._LFVertices.Add(face._LFVertices[0]);
