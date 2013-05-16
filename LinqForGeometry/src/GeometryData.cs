@@ -46,7 +46,7 @@ namespace hsfurtwangen.dsteffen.lfg
         private List<EdgePtrCont> _LedgePtrCont;
         private List<FacePtrCont> _LfacePtrCont;
 
-
+        public List<List<HandleFace>> _LvertFaceLookUp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="hsfurtwangen.dsteffen.lfg.Geometry"/> class.
@@ -65,6 +65,8 @@ namespace hsfurtwangen.dsteffen.lfg
             _LfaceNormals = new List<float3>();
             _LVertexNormals = new List<float3>();
             _LuvCoordinates = new List<float2>();
+
+            _LvertFaceLookUp = new List<List<HandleFace>>();
         }
 
 
@@ -97,25 +99,50 @@ namespace hsfurtwangen.dsteffen.lfg
         /// Normally should not be called by the user. The system is calling it once a face has been inserted to the geometry object.
         /// </summary>
         /// <param name="handleFace">Handle to a face</param>
-        public void AddFaceNormal(HandleFace handleFace)
+        public void CalcFaceNormal(HandleFace handleFace)
         {
             IEnumerable<HandleVertex> enVerts = EnFaceVertices(handleFace);
-            var Lverts = enVerts.Select(handleVertex => _LvertexVal[handleVertex]).ToList();
+            var Lverts = enVerts.Select(handleVertex => _LvertexVal[handleVertex._DataIndex]).ToList();
 
             if (Lverts.Count >= 3)
             {
-                float3 p0 = Lverts[0];
-                float3 p1 = Lverts[1];
-                float3 p2 = Lverts[2];
 
-                float3 v1 = float3.Subtract(p1, p0);
-                float3 v2 = float3.Subtract(p2, p0);
+                float3 v0 = Lverts[0];
+                float3 v1 = Lverts[1];
+                float3 v2 = Lverts[2];
 
-                float3 n = float3.Cross(v1, v2);
+                float3 c1 = float3.Subtract(v0, v1);
+                float3 c2 = float3.Subtract(v0, v2);
+
+                float3 n = float3.Cross(c1, c2);
+
+                Debug.WriteLine("CalcNormal: " + float3.Normalize(n));
+
                 _LfaceNormals.Add(
                     float3.Normalize(n)
                     );
             }
+        }
+
+        /// <summary>
+        /// Only for testing, calculates face normals with the help of the hes.
+        /// </summary>
+        /// <returns></returns>
+        public void CalcFaceNormalsToList(HandleFace faceHandle)
+        {
+            //List<HandleVertex> tmpList = IteratorVerticesAroundFaceForTriangles(faceHandle);
+            List<HandleVertex> tmpList = IteratorVerticesAroundFace(faceHandle).ToList();
+
+            var v0 = _LvertexVal[tmpList[0]];
+            var v1 = _LvertexVal[tmpList[1]];
+            var v2 = _LvertexVal[tmpList[2]];
+
+            float3 c1 = float3.Subtract(v0, v1);
+            float3 c2 = float3.Subtract(v0, v2);
+
+            float3 n = float3.Cross(c1, c2);
+
+            _LfaceNormals.Add(float3.Normalize(n));
         }
 
         /// <summary>
@@ -126,12 +153,10 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns>float3 value which is the normal vektor for the vertex</returns>
         public float3 CalcVertexNormal(HandleVertex handleVertex)
         {
-            float3 normalized = new float3(0, 0, 0);
-
             List<float3> adjacentfaceNormals = new List<float3>();
             IEnumerable<HandleFace> adjacentfaces = EnVertexAdjacentFaces(handleVertex);
-
             int faceNormalsCount = _LfaceNormals.Count;
+
             foreach (HandleFace handleFace in adjacentfaces)
             {
                 try
@@ -144,25 +169,52 @@ namespace hsfurtwangen.dsteffen.lfg
                                 _LfaceNormals[handleFace]
                                 );
                         }
+                        else
+                        {
+                            throw new Exception("Runtime Error: Face handle is not in the face list.");
+                        }
                     }
                     else
                     {
-                        // TODO: Error face handle should not be -1. Should not occure. Otherwise perhaps a runtime error.
-                        throw new Exception("Runtime Error: Face handle for vertex is -1. Vertex does not point to a face.");
+                        //throw new Exception("Runtime Error: Face handle is invalid.");
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Fusee.Engine.Diagnostics.Log("Runtime Error: Face handle for vertex is -1. Vertex does not point to a face.");
+                    Debug.WriteLine(e.Message);
                 }
             }
 
-            int adjacentfaceCount = adjacentfaceNormals.Count;
-            var sumNormals = new float3();
-            sumNormals = adjacentfaceNormals.Aggregate(sumNormals, (current, adjacentfaceNormal) => float3.Add(current, adjacentfaceNormal));
-            normalized = float3.Normalize(sumNormals);
+            float3 sumNormals = new float3();
 
+            foreach (float3 faceNormal in adjacentfaceNormals)
+            {
+                sumNormals += faceNormal;
+            }
+
+            sumNormals /= adjacentfaceNormals.Count;
+            float3 normalized = float3.Normalize(sumNormals);
             return normalized;
+        }
+
+        /// <summary>
+        /// Only for performance optimization testing
+        /// </summary>
+        /// <param name="handleVertex"></param>
+        /// <returns></returns>
+        public void CalcVertexNormalPerfTest(HandleVertex handleVertex)
+        {
+            float3 sumNormals = new float3();
+            //sumNormals = EnVertexAdjacentFaces(handleVertex).Where(face => face._DataIndex != -1).Aggregate(sumNormals, (current, face) => current + _LfaceNormals[face._DataIndex]);
+            foreach (var handleFace in _LvertFaceLookUp[handleVertex._DataIndex])
+            {
+                if (handleFace != -1)
+                {
+                    sumNormals += _LfaceNormals[handleFace._DataIndex];
+                }
+            }
+            _LVertexNormals.Add(float3.Normalize(sumNormals));
+            //_LVertexNormals.Add(sumNormals);
         }
 
         /// <summary>
@@ -325,17 +377,6 @@ namespace hsfurtwangen.dsteffen.lfg
                 vHndl._DataIndex = index;
                 return vHndl;
             }
-        }
-
-
-        /// <summary>
-        /// Returns the data corresponding to a vertex handle
-        /// </summary>
-        /// <param name="hv">HandleVertex with ID the data is wanted to be retrieved</param>
-        /// <returns></returns>
-        public float3 GetVertexData(HandleVertex hv)
-        {
-            return _LvertexVal[hv._DataIndex];
         }
 
 
@@ -576,6 +617,46 @@ namespace hsfurtwangen.dsteffen.lfg
         public IEnumerable<HandleEdge> EnFaceEdges(HandleFace hf)
         {
             return EnFaceHalfEdges(hf).Select(val => HalfEdgeHandleToEdgeHandle(val));
+        }
+
+
+        public List<HandleVertex> IteratorVerticesAroundFaceForTriangles(HandleFace hf)
+        {
+            List<HandleVertex> LtmpVert = new List<HandleVertex>();
+            HandleHalfEdge heh = _LfacePtrCont[hf]._h;
+            int indexStart = heh._DataIndex;
+
+            /*
+            while (true)
+            {
+                LtmpVert.Add(_LhedgePtrCont[heh]._v);
+                heh = _LhedgePtrCont[heh]._nhe;
+
+                if (LtmpVert.Count >= 3) { break; }
+            }
+            */
+            for (int i = 0; i < 3; i++)
+            {
+                LtmpVert.Add(_LhedgePtrCont[heh]._v);
+                heh = _LhedgePtrCont[heh]._nhe;
+            }
+
+            return LtmpVert;
+        }
+
+        public IEnumerable<HandleVertex> IteratorVerticesAroundFace(HandleFace hf)
+        {
+            List<HandleVertex> LtmpVert = new List<HandleVertex>();
+            HandleHalfEdge heh = _LfacePtrCont[hf]._h;
+            int indexStart = heh._DataIndex;
+
+            for (int i = 0; i < 3; i++)
+            {
+                LtmpVert.Add(_LhedgePtrCont[heh]._v);
+                heh = _LhedgePtrCont[heh]._nhe;
+            }
+
+            return LtmpVert.AsEnumerable();
         }
 
 

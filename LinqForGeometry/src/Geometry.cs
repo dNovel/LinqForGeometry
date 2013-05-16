@@ -90,11 +90,18 @@ namespace hsfurtwangen.dsteffen.lfg
             timeDone = String.Format(globalinf.LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
 
-            // Calc the vertex normals.
-            _GeometryContainer._LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormal(handleVert)).ToList();
+            _GeometryContainer._LfaceNormals.Clear();
+            foreach (HandleFace face in EnAllFaces())
+            {
+                _GeometryContainer.CalcFaceNormalsToList(face);
+            }
+            //_GeometryContainer._LVertexNormals = EnAllVertices().Select(handleVert => _GeometryContainer.CalcVertexNormalPerfTest(handleVert)).ToList();
 
             // Set the default form etc. of the model.
             _GeometryContainer.SetVertexDefaults();
+
+            // Precalculate the adjacent faces for every vertex
+            PreCalculateVertAdjacentFaces();
         }
 
 
@@ -114,21 +121,20 @@ namespace hsfurtwangen.dsteffen.lfg
 
                 if (faceVertCount == 3)
                 {
-                    GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>() };
-                    newFace._LFVertices.Add(face._LFVertices[0]);
-                    newFace._LFVertices.Add(face._LFVertices[1]);
-                    newFace._LFVertices.Add(face._LFVertices[2]);
-
-                    newFace._UV.Add(face._UV[0]);
-                    newFace._UV.Add(face._UV[1]);
-                    newFace._UV.Add(face._UV[2]);
-
-                    triangleFaces.Add(newFace);
+                    triangleFaces.Add(face);
                 }
                 else if (faceVertCount > 3)
                 {
+                    if (globalinf.LFGMessages._DEBUGOUTPUT || true)
+                    {
+                        Debug.WriteLine(" --- ");
+                        foreach (var vert in face._LFVertices)
+                        {
+                            Debug.WriteLine("Vert" + vert);
+                        }
+                        Debug.WriteLine(" --- ");
+                    }
                     secondVert++;
-                    // Changed from while (secondVert != faceVertCount - 1) to while (secondVert <= faceVertCount - 1)
                     while (secondVert != faceVertCount - 1)
                     {
                         GeoFace newFace = new GeoFace() { _LFVertices = new List<float3>(), _UV = new List<float2>() };
@@ -162,24 +168,42 @@ namespace hsfurtwangen.dsteffen.lfg
         /// <returns>Fusee Mesh</returns>
         public Mesh ToMesh()
         {
-            // TODO: This is what takes a long time and is responsible for framedrops. Have to set a bool if any changes on the triangles are made so they will be generated one time.
+            // Calculate Triangles from faces
             if (!_triangleListSet && !_ChangesOnFaces)
             {
                 _LtriangleList.Clear();
-                _LtriangleList = EnAllFaces().SelectMany(face => FaceSurroundingVertices(face).Select(vert => (short)vert._DataIndex)).ToList();
+                foreach (var face in _LfaceHndl)
+                {
+                    List<HandleVertex> LtmpVertsTriangle = _GeometryContainer.IteratorVerticesAroundFaceForTriangles(face);
+                    foreach (HandleVertex vert in LtmpVertsTriangle)
+                    {
+                        _LtriangleList.Add((short)vert._DataIndex);
+                    }
+                }
                 _triangleListSet = true;
+            }
+
+            // When vertices were manipulated, recalculate the normals for lighting.
+            if (_Changes)
+            {
+                _GeometryContainer._LfaceNormals.Clear();
+                foreach (HandleFace face in EnAllFaces())
+                {
+                    _GeometryContainer.CalcFaceNormalsToList(face);
+                }
+
+                _GeometryContainer._LVertexNormals.Clear();
+                foreach (HandleVertex vertex in EnAllVertices())
+                {
+                    _GeometryContainer.CalcVertexNormalPerfTest(vertex);
+                }
             }
 
             Mesh mesh = new Mesh();
             mesh.Vertices = _GeometryContainer._LvertexVal.ToArray();
+            mesh.Triangles = _LtriangleList.ToArray();
             mesh.Normals = _GeometryContainer._LVertexNormals.ToArray();
             mesh.UVs = _GeometryContainer._LuvCoordinates.ToArray();
-
-
-            // Convert all the faces to 'triangles'.
-            mesh.Triangles = _LtriangleList.ToArray();
-            // This is the staement for every frame convertion.
-            //mesh.Triangles = EnAllFaces().SelectMany(face => FaceSurroundingVertices(face).Select(vert => (short)vert._DataIndex)).ToArray();
 
             return mesh;
         }
@@ -198,7 +222,10 @@ namespace hsfurtwangen.dsteffen.lfg
             }
             else
             {
-                Console.WriteLine("$$$ Vertex has been already inserted!");
+                if (globalinf.LFGMessages._DEBUGOUTPUT)
+                {
+                    Console.WriteLine("$$$ Vertex has been already inserted!");
+                }
             }
             return hvToAdd;
         }
@@ -246,7 +273,10 @@ namespace hsfurtwangen.dsteffen.lfg
                     }
                     else
                     {
-                        Console.WriteLine("$$$ Edge has been already inserted!");
+                        if (globalinf.LFGMessages._DEBUGOUTPUT)
+                        {
+                            Console.WriteLine("$$$ Edge has been already inserted!");
+                        }
                     }
                     LtmpEdgesForFace.Add(handleEdge);
                 }
@@ -260,7 +290,10 @@ namespace hsfurtwangen.dsteffen.lfg
                     }
                     else
                     {
-                        Console.WriteLine("$$$ Edge has been already inserted!");
+                        if (globalinf.LFGMessages._DEBUGOUTPUT)
+                        {
+                            Console.WriteLine("$$$ Edge has been already inserted!");
+                        }
                     }
                     LtmpEdgesForFace.Add(handleEdge);
                 }
@@ -273,8 +306,22 @@ namespace hsfurtwangen.dsteffen.lfg
             _GeometryContainer.UpdateCWHedges(LtmpEdgesForFace);
 
             // Calculate and add the face normal to a list here
-            int lastFaceIndex = _LfaceHndl.Count - 1;
-            _GeometryContainer.AddFaceNormal(_LfaceHndl[lastFaceIndex]);
+            //int lastFaceIndex = _LfaceHndl.Count - 1;
+            //_GeometryContainer.CalcFaceNormal(_LfaceHndl[lastFaceIndex]);
+        }
+
+
+        /// <summary>
+        /// This method precalculates the faces that are corresponding to a specific vertex.
+        /// The system needs this to cache them and speed up normal calculation.
+        /// </summary>
+        public void PreCalculateVertAdjacentFaces()
+        {
+            List<HandleFace> LFacePointers = new List<HandleFace>();
+            foreach (HandleVertex vertH in _LverticeHndl)
+            {
+                _GeometryContainer._LvertFaceLookUp.Add(_GeometryContainer.EnVertexAdjacentFaces(vertH).ToList());
+            }
         }
 
 
