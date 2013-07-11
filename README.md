@@ -1,4 +1,10 @@
-﻿Deutsch:
+﻿##!Important!
+This project has been integrated in the 3d realtime engine "Fusee". You can visit the repo of "Fusee" here: https://github.com/FUSEEProjectTeam/Fusee
+
+##!Wichtig!
+Dieses projekt wurde zwischenzeitlich in die Echtzeit 3D Engine "Fusee" integriert. Das "Fusee" Repo gibt es hier: https://github.com/FUSEEProjectTeam/Fusee
+
+Deutsch:
 # Thesis Projekt - Dominik Steffen Sommersemester 2013
 
 ## Informationen
