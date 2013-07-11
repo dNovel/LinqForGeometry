@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.5.1">
+  <zoom_level>7</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>168</x>
+      <y>693</y>
+      <w>133</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=blue
+
+EdgeHandle
+{struct}
+--
+_inx:int
++ IsValid:bool
+--
++ GetInx():int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>168</x>
+      <y>203</y>
+      <w>133</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=blue
+
+HalfEdgeHandle
+{struct}
+--
+_inx:int
++ IsValid:bool
+--
++ GetInx():int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>168</x>
+      <y>357</y>
+      <w>133</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=blue
+
+VertexHandle
+{struct}
+--
+_inx:int
++ IsValid:bool
+--
++ GetInx():int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>168</x>
+      <y>525</y>
+      <w>133</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=blue
+
+FaceHandle
+{struct}
+--
+_inx:int
++ IsValid:bool
+--
++ GetInx():int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>966</x>
+      <y>308</y>
+      <w>280</w>
+      <h>392</h>
+    </coordinates>
+    <panel_attributes>bg=green
+
+Geometry&lt;VT, ET, FT&gt;
+Package::LinqForGeometry
+--
+- _vertices:List&lt;InternalVertex&gt;
+- _halfEdge:List&lt;InternalHalfEdge&gt;
+- _faces:List&lt;InternalFace&gt;
+
+- _vertexAttribs:List&lt;VT&gt; (float3)
+- _edgeAttribs:List&lt;ET&gt; (float3)
+- _faceAtribs:List&lt;FT&gt; (float3)
+--
++ AddVertex:VertexHandle
++ AddFace:FaceHandle
++ AddEdge:EdgeHandle
+ 
++ GetOrAddEdge:EdgeHandle
++ GetConnection:EdgeHandle
+ 
++ HalfEdgeHalfEdgeFace:IEnumerable&lt;HalfEdgeHanle&gt;
++ HalfEdgeHalfEdgeFaceInt:IEnumerable&lt;int&gt;
++ HalfEdgeHalfEdgeVertex:IEnumerable&lt;HalfEdgeHandle&gt;
++ HalfEdgeHalfEdgeVertexInt:IEnumerable&lt;int&gt;
+ 
++ VertexVertex:IEnumerable&lt;VertexHandle&gt;
++ VertexHalfEdgeIncoming:IEnumerable&lt;HalfEdgeHandle&gt;
++ VertexHalfEdgeOutgoing:IEnumerable&lt;HalfEdgeHandle&gt;
++ VertexEdge:IEnumerable&lt;EdgeHandle&gt;
++ VertexFace:IEnumerable&lt;FaceHandle&gt;
+ 
++ FaceVertex:IEnumerable&lt;VertexHandle&gt;
++ FaceEdge:IEnumerable&lt;EdgeHandle&gt;
++ FaceHalfEdgeCW:IEnumerable&lt;HalfEdgeHandle&gt;
++ FaceHalfEdgeCCW:IEnumerable&lt;HalfEdgeHandle&gt;
+ 
++ EdgeVertex:IEnumerable&lt;VertexHandle&gt;
++ EdgeFace:IEnumerable&lt;FaceHandle&gt;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>525</x>
+      <y>693</y>
+      <w>119</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=red
+
+InternalEdge
+{struct}
+--
+_h0:InternalHalfEdge
+_h1:InternalHalfEdge</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>525</x>
+      <y>364</y>
+      <w>119</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=red
+
+InternalHalfEdge
+{struct}
+--
+_next:HalfEdgeHandle
+_v:VertexHandle
+_f:FaceHandle
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>525</x>
+      <y>532</y>
+      <w>119</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=red
+
+
+InternalVertex
+{struct}
+--
+_h:HalfEdgeHandle
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>525</x>
+      <y>189</y>
+      <w>119</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=red
+
+InternalFace
+{struct}
+--
+_h:HalfEdgeHandle</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>623</x>
+      <y>266</y>
+      <w>398</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2=1...*</panel_attributes>
+    <additional_attributes>385;42;385;21;287;21;287;287;21;287</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>623</x>
+      <y>238</y>
+      <w>419</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2=1...*</panel_attributes>
+    <additional_attributes>406;70;406;21;266;21;266;140;21;140</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>623</x>
+      <y>182</y>
+      <w>440</w>
+      <h>139</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2=1...*</panel_attributes>
+    <additional_attributes>427;126;427;21;238;21;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>154</x>
+      <y>154</y>
+      <w>384</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m2= 1
+m1=1</panel_attributes>
+    <additional_attributes>371;56;343;56;343;21;21;21;21;49</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>266</y>
+      <w>356</w>
+      <h>111</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1= 1
+m2= 1</panel_attributes>
+    <additional_attributes>21;21;196;21;196;49;343;49;343;98</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>308</y>
+      <w>342</w>
+      <h>76</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1= 1
+m2= 1</panel_attributes>
+    <additional_attributes>21;63;77;63;77;21;329;21;329;56</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>322</y>
+      <w>328</w>
+      <h>223</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1= 1
+m2= 1</panel_attributes>
+    <additional_attributes>21;210;210;210;210;21;315;21;315;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>91</x>
+      <y>196</y>
+      <w>475</w>
+      <h>482</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1= 1
+m2= 1</panel_attributes>
+    <additional_attributes>77;21;21;21;21;469;420;469;420;322;462;322;462;336</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>560</x>
+      <y>399</y>
+      <w>181</w>
+      <h>307</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1= 1
+m2= 2</panel_attributes>
+    <additional_attributes>21;294;21;273;168;273;168;21;84;21</additional_attributes>
+  </element>
+</diagram>
