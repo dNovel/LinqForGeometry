@@ -65,5 +65,4 @@
     <Compile Include="src\PtrContainer\EdgePtrCont.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
 </Project>

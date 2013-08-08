@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shfbBuild product="Sandcastle Help File Builder" version="1.9.6.0" projectFile="C:\Users\dominik\DevelopmentTEMP\LinqForGeometry\documentation\sandcastle\lfg.shfbproj" started="11.07.2013 13:00:57">
+<shfbBuild product="Sandcastle Help File Builder" version="1.9.6.0" projectFile="C:\Users\dominik\DevelopmentTEMP\LinqForGeometry\Sandcastle_Documentation\sandcastle\lfg.shfbproj" started="05.08.2013 12:46:47">
 <buildStep step="Initializing">
 Finding tools...
 Found Sandcastle tools in &#39;C:\Program Files (x86)\Sandcastle\&#39;
@@ -25,7 +25,7 @@ Generating shared content files (en-US, Englisch (USA))...
 </buildStep>
 <buildStep step="GenerateApiFilter">
 Generating API filter for MRefBuilder...
-    Last step completed in 00:00:00.0030
+    Last step completed in 00:00:00.0020
 </buildStep>
 <buildStep step="GenerateReflectionInfo">
 Generating reflection information...
@@ -33,11 +33,11 @@ Generating reflection information...
   MRefBuilder (v2.7.2.0)
   Copyright &#184; 2006-2012, Microsoft Corporation, All Rights Reserved
   Info: Loaded 2 assemblies for reflection and 0 dependency assemblies.
-  Info: Wrote information on 4 namespaces, 10 types, and 49 members
+  Info: Wrote information on 4 namespaces, 10 types, and 48 members
   XslTransform (v2.7.2.0)
   Copyright &#184; 2006-2012, Microsoft Corporation, All Rights Reserved
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\MergeDuplicates.xsl&#39;.
-    Last step completed in 00:00:02.2171
+    Last step completed in 00:00:00.9181
 </buildStep>
 <buildStep step="GenerateNamespaceSummaries">
 Generating namespace summary information...
@@ -48,7 +48,7 @@ Applying visibility properties to reflection information file
     0 attribute nodes removed
     0 explicit interface implementations removed
     0 local and base class EII elements removed
-    Last step completed in 00:00:00.0190
+    Last step completed in 00:00:00.0160
 </buildStep>
 <buildStep step="TransformReflectionInfo">
 Transforming reflection output...
@@ -60,12 +60,12 @@ Transforming reflection output...
   XslTransform (v2.7.2.0)
   Copyright &#184; 2006-2012, Microsoft Corporation, All Rights Reserved
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\ReflectionToManifest.xsl&#39;.
-    Last step completed in 00:00:01.8201
+    Last step completed in 00:00:00.8510
 </buildStep>
 <buildStep step="ModifyHelpTopicFilenames">
 Modifying help topic filenames in reflection information file
     No changes required
-    Last step completed in 00:00:00.0090
+    Last step completed in 00:00:00.0040
 </buildStep>
 <buildStep step="CopyStandardContent">
 Copying standard help content...
@@ -263,16 +263,16 @@ C:\Program Files (x86)\Sandcastle\\Presentation\VS2010\branding -&gt; E:\Develop
     C:\Program Files (x86)\Sandcastle\Presentation\VS2010\branding\ps-instrumentedLink.xslt -> E:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\branding\ps-instrumentedLink.xslt
     C:\Program Files (x86)\Sandcastle\Presentation\VS2010\branding\ps-languageSpecificText.xslt -> E:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\branding\ps-languageSpecificText.xslt
     C:\Program Files (x86)\Sandcastle\Presentation\VS2010\branding\ps-codesnippet.xslt -> E:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\branding\ps-codesnippet.xslt
-    Last step completed in 00:00:00.1870
+    Last step completed in 00:00:00.1690
 </buildStep>
 <buildStep step="CopyAdditionalContent">
 Copying additional content files...
 No additional content to copy
-    Last step completed in 00:00:00.0020
+    Last step completed in 00:00:00.0010
 </buildStep>
 <buildStep step="MergeTablesOfContents">
 Merging conceptual and additional tables of contents...
-    Last step completed in 00:00:00.0010
+    Last step completed in 00:00:00.0000
 </buildStep>
 <buildStep step="GenerateIntermediateTableOfContents">
 Generating intermediate table of contents file...
@@ -281,12 +281,12 @@ Generating intermediate table of contents file...
   Copyright &#184; 2006-2012, Microsoft Corporation, All Rights Reserved
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\\ProductionTransforms\CreateVSToc.xsl&#39;.
 Generating conceptual content intermediate TOC file...
-    Last step completed in 00:00:01.2661
+    Last step completed in 00:00:00.2530
 </buildStep>
 <buildStep step="CreateBuildAssemblerConfigs">
 Creating Sandcastle configuration files...
     sandcastle.config
-    Last step completed in 00:00:00.0070
+    Last step completed in 00:00:00.0060
 </buildStep>
 <buildStep step="MergeCustomConfigs">
 Merging custom build component configurations
@@ -302,37 +302,14 @@ Building reference help topics...
   Info: Processing topics...
   Warn: ResolveReferenceLinksComponent2: [M:LFG.ExternalModules.Transformations.Transformations.Transform(Fusee.Math.float4x4,LinqForGeometry.Core.Geometry@)] Unknown reference link target &#39;T:Fusee.Math.float4x4&#39;.
   Warn: ResolveReferenceLinksComponent2: [M:LFG.ExternalModules.Transformations.Transformations.Transform(Fusee.Math.float4x4,LinqForGeometry.Core.Geometry@)] Unknown reference link target &#39;T:Fusee.Math.float4x4&#39;.
-  Warn: ShowMissingComponent: [T:LinqForGeometry.Core.Geometry] Missing &lt;summary&gt; documentation
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._Changes] Missing &lt;summary&gt; documentation
-  Warn: ShowMissingComponent: [P:LinqForGeometry.Core.Geometry._DoCalcVertexNormals] Missing &lt;summary&gt; documentation
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._LedgeHndl] Missing &lt;summary&gt; documentation
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._LfaceHndl] Missing &lt;summary&gt; documentation
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._LfaceNormals] Missing &lt;summary&gt; documentation
   Warn: ResolveReferenceLinksComponent2: [F:LinqForGeometry.Core.Geometry._LfaceNormals] Unknown reference link target &#39;T:Fusee.Math.float3&#39;.
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._LVertexNormals] Missing &lt;summary&gt; documentation
   Warn: ResolveReferenceLinksComponent2: [F:LinqForGeometry.Core.Geometry._LVertexNormals] Unknown reference link target &#39;T:Fusee.Math.float3&#39;.
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._LvertexVal] Missing &lt;summary&gt; documentation
   Warn: ResolveReferenceLinksComponent2: [F:LinqForGeometry.Core.Geometry._LvertexVal] Unknown reference link target &#39;T:Fusee.Math.float3&#39;.
-  Warn: ShowMissingComponent: [F:LinqForGeometry.Core.Geometry._LverticeHndl] Missing &lt;summary&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.AddVertex(Fusee.Math.float3)] Missing &lt;returns&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.AddVertex(Fusee.Math.float3)] Missing &lt;param name=&quot;val&quot;/&gt; documentation
   Warn: ResolveReferenceLinksComponent2: [M:LinqForGeometry.Core.Geometry.AddVertex(Fusee.Math.float3)] Unknown reference link target &#39;T:Fusee.Math.float3&#39;.
   Warn: ResolveReferenceLinksComponent2: [M:LinqForGeometry.Core.Geometry.AddVertex(Fusee.Math.float3)] Unknown reference link target &#39;T:Fusee.Math.float3&#39;.
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.CalcFaceNormal(LinqForGeometry.Core.Handles.HandleFace)] Missing &lt;param name=&quot;faceHandle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.CreateConnection(LinqForGeometry.Core.Handles.HandleVertex,LinqForGeometry.Core.Handles.HandleVertex)] Missing &lt;returns&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.CreateConnection(LinqForGeometry.Core.Handles.HandleVertex,LinqForGeometry.Core.Handles.HandleVertex)] Missing &lt;param name=&quot;fromVert&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.CreateConnection(LinqForGeometry.Core.Handles.HandleVertex,LinqForGeometry.Core.Handles.HandleVertex)] Missing &lt;param name=&quot;toVert&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Geometry.ResetGeometryToDefault] Missing &lt;returns&gt; documentation
-  Warn: ResolveReferenceLinksComponent2: [M:LinqForGeometry.Core.Geometry.ToMesh] Unknown reference link target &#39;T:Fusee.Engine.Mesh&#39;.
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleEdge.op_Implicit(LinqForGeometry.Core.Handles.HandleEdge)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleFace.op_Implicit(LinqForGeometry.Core.Handles.HandleFace)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleFaceNormal.op_Implicit(LinqForGeometry.Core.Handles.HandleFaceNormal)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleHalfEdge.op_Implicit(LinqForGeometry.Core.Handles.HandleHalfEdge)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleVertex.op_Implicit(LinqForGeometry.Core.Handles.HandleVertex)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleVertexNormal.op_Implicit(LinqForGeometry.Core.Handles.HandleVertexNormal)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Warn: ShowMissingComponent: [M:LinqForGeometry.Core.Handles.HandleVertexUV.op_Implicit(LinqForGeometry.Core.Handles.HandleVertexUV)~System.Int32] Missing &lt;param name=&quot;handle&quot;/&gt; documentation
-  Info: Processed 99 topics
-    Last step completed in 00:00:37.0891
+  Warn: ResolveReferenceLinksComponent2: [M:LinqForGeometry.Core.Geometry.ToMesh(System.Boolean)] Unknown reference link target &#39;T:Fusee.Engine.Mesh&#39;.
+  Info: Processed 98 topics
+    Last step completed in 00:00:37.5851
 </buildStep>
 <buildStep step="CombiningIntermediateTocFiles">
 Combining conceptual and API intermediate TOC files...
@@ -348,11 +325,11 @@ E-Mail: Eric@EWoodruff.us
 Using LCID &#39;1033&#39;, code page &#39;65001&#39;, encoding charset &#39;UTF-8&#39;.
 
 Processing Help 1 files in E:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\Output\HtmlHelp1
-Processed 99 HTML files
+Processed 98 HTML files
 Sorting keywords and generating See Also indices
 Saving HTML Help 1 keyword index to E:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\LinqForGeometry.hhk
 Saving HTML Help 1 table of contents to E:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\LinqForGeometry.hhc
-    Last step completed in 00:00:01.4171
+    Last step completed in 00:00:00.2920
 </buildStep>
 <buildStep step="GenerateHelpFormatTableOfContents">
 Generating HTML Help 1 table of contents file...
@@ -364,7 +341,7 @@ Generating HTML Help 1 index file...
 </buildStep>
 <buildStep step="GenerateHelpProject">
 Generating HTML Help 1 project file...
-    Last step completed in 00:00:00.0030
+    Last step completed in 00:00:00.0020
 </buildStep>
 <buildStep step="CompilingHelpFile">
 Compiling HTML Help 1 file...
@@ -381,9 +358,9 @@ Compiling HTML Help 1 file...
   
   Compile time: 0 minutes, 1 second
   
-  101	Topics
+  100	Topics
   
-  1,066	Local links
+  1,052	Local links
   
   279	Internet links
   
@@ -393,19 +370,19 @@ Compiling HTML Help 1 file...
   
   
   
-  Created e:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\Output\HtmlHelp1\LinqForGeometry.chm, 155,123 bytes
+  Created e:\Development\HFU_FUSEE\Fusee\src\Engine\LinqForGeometry\Documentation\Working\Output\HtmlHelp1\LinqForGeometry.chm, 154,078 bytes
   
-  Compression decreased file by 788,729 bytes.
+  Compression decreased file by 783,081 bytes.
   
-    Last step completed in 00:00:02.5311
+    Last step completed in 00:00:01.9921
 </buildStep>
 <buildStep step="CleanIntermediates">
 Removing intermediate files...
-    Last step completed in 00:00:00.0290
+    Last step completed in 00:00:00.0370
 </buildStep>
 <buildStep step="Completed">
 
-Build completed successfully at 07.11.2013 01:01 .  Total time: 00:00:46,6807
+Build completed successfully at 08.05.2013 12:47 .  Total time: 00:00:42,2104
 
 </buildStep>
 </shfbBuild>
